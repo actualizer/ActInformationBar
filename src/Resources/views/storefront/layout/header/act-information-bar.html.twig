@@ -1,0 +1,39 @@
+{% set actInformationBar = page.header.extensions.actInformationBar %}
+
+{% if actInformationBar.show %}
+	{% if actInformationBar.fullWidth %}
+		<div class="act-info-bar act-info-bar-full-width" data-act-information-bar="true" data-timestamp="{{ 'now'|date('U') }}" style="font-size: {{ actInformationBar.fontSize }}px;">
+			<div class="container">
+				<div class="d-flex justify-content-{% if actInformationBar.showButton %}between{% else %}center{% endif %} align-items-center">
+					<div {% if actInformationBar.showButton %} class="mr-3" {% endif %}>
+						<div class="act-info-message-container" data-message="{{ actInformationBar.message|escape }}" data-duration="{{ actInformationBar.displayDuration }}"></div>
+					</div>
+					{% if actInformationBar.showButton %}
+						<div>
+							<a href="{{ actInformationBar.buttonUrl }}" target="{{ actInformationBar.buttonTarget }}" title="{{ actInformationBar.buttonTitle }}" class="btn act-information-bar-button">
+								{{ actInformationBar.buttonText }}
+							</a>
+						</div>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+	{% else %}
+		<div class="act-info-bar" data-act-information-bar="true" data-timestamp="{{ 'now'|date('U') }}" style="font-size: {{ actInformationBar.fontSize }}px;">
+			<div class="container act-info-bar-content">
+				<div class="d-flex justify-content-{% if actInformationBar.showButton %}between{% else %}center{% endif %} align-items-center">
+					<div {% if actInformationBar.showButton %} class="mr-3" {% endif %}>
+						<div class="act-info-message-container" data-message="{{ actInformationBar.message|escape }}" data-duration="{{ actInformationBar.displayDuration }}"></div>
+					</div>
+					{% if actInformationBar.showButton %}
+						<div>
+							<a href="{{ actInformationBar.buttonUrl }}" target="{{ actInformationBar.buttonTarget }}" title="{{ actInformationBar.buttonTitle }}" class="btn act-information-bar-button">
+								{{ actInformationBar.buttonText }}
+							</a>
+						</div>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+	{% endif %}
+{% endif %}

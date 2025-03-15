@@ -1,0 +1,51 @@
+// ActInformationBar SCSS
+
+// Fallback values for variables
+$act-information-bar-text-color: #FFFFFF !default;
+$act-information-bar-background-color: #000000 !default;
+$act-information-bar-padding-top: 15px !default;
+$act-information-bar-padding-bottom: 15px !default;
+$act-information-bar-font-size: 14px !default;
+$act-information-bar-button-text-color: #FFFFFF !default;
+$act-information-bar-button-text-color-hover: #FFFFFF !default;
+$act-information-bar-button-border-color: #FFFFFF !default;
+$act-information-bar-button-border-color-hover: #FFFFFF !default;
+$act-information-bar-button-border-width: 1px !default;
+$act-information-bar-button-background-color: transparent !default;
+$act-information-bar-button-background-color-hover: transparent !default;
+
+// Information Bar styling
+.act-info-bar {
+    font-size: $act-information-bar-font-size;
+
+    &-content {
+        background-color: $act-information-bar-background-color;
+        color: $act-information-bar-text-color;
+        padding-top: $act-information-bar-padding-top;
+        padding-bottom: $act-information-bar-padding-bottom;
+    }
+
+    &-full-width {
+        background-color: $act-information-bar-background-color;
+        color: $act-information-bar-text-color;
+        padding-top: $act-information-bar-padding-top;
+        padding-bottom: $act-information-bar-padding-bottom;
+    }
+}
+
+// Button styling
+.act-information-bar-button {
+    color: $act-information-bar-button-text-color;
+    border-color: $act-information-bar-button-border-color;
+    border-width: $act-information-bar-button-border-width;
+    border-style: solid;
+    font-size: $act-information-bar-font-size;
+    background-color: $act-information-bar-button-background-color;
+    transition: all 0.3s ease;
+
+    &:hover {
+        color: $act-information-bar-button-text-color-hover;
+        border-color: $act-information-bar-button-border-color-hover;
+        background-color: $act-information-bar-button-background-color-hover;
+    }
+}

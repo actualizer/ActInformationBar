@@ -1,0 +1,26 @@
+{
+  "name": "act/information-bar",
+  "description": "A plugin to display a time-controlled information bar with a customizable message.",
+  "type": "shopware-platform-plugin",
+  "license": "MIT",
+  "version": "1.0.1",
+  "authors": [
+    {
+      "name": "Ralph Geldmacher",
+      "email": "ralph@actualize.de",
+      "homepage": "https://www.actualize.de"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Act\\InformationBar\\": "src/"
+    }
+  },
+  "extra": {
+    "shopware-plugin-class": "Act\\InformationBar\\ActInformationBar",
+    "label": {
+      "de-DE": "Actualize: Zeitgesteuerte Informationszeile",
+      "en-GB": "Actualize: Time-controlled Information Bar"
+    }
+  }
+}

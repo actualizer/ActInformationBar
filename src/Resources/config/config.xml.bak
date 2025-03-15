@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/master/src/Core/System/SystemConfig/Schema/config.xsd">
+
+    <card>
+
+
+        <title lang="de-DE">Allgemeine Einstellungen</title>
+        <title lang="en-GB">General Settings</title>
+
+        <input-field type="bool">
+            <name>isActive</name>
+            <label lang="de-DE">Aktiv</label>
+            <label lang="en-GB">Active</label>
+            <defaultValue>true</defaultValue>
+        </input-field>
+
+        <input-field type="bool">
+            <name>fullWidth</name>
+            <label lang="de-DE">Volle Breite</label>
+            <label lang="en-GB">Full Width</label>
+        </input-field>
+
+
+        <input-field type="textarea">
+            <name>message</name>
+            <label lang="de-DE">Nachricht (Eine Zeile pro Anzeige)</label>
+            <label lang="en-GB">Message (One line per display)</label>
+            <helpText lang="de-DE">Jede Zeile wird einzeln nacheinander angezeigt</helpText>
+            <helpText lang="en-GB">Each line will be displayed sequentially</helpText>
+        </input-field>
+
+        <input-field type="int">
+            <name>displayDuration</name>
+            <label lang="de-DE">Anzeigedauer pro Zeile (in Sekunden)</label>
+            <label lang="en-GB">Display duration per line (in seconds)</label>
+            <defaultValue>3</defaultValue>
+            <min>1</min>
+            <max>10</max>
+        </input-field>
+
+        <input-field type="datetime">
+            <name>startDate</name>
+            <label lang="de-DE">Startdatum</label>
+            <label lang="en-GB">Start Date</label>
+        </input-field>
+
+        <input-field type="datetime">
+            <name>endDate</name>
+            <label lang="de-DE">Enddatum</label>
+            <label lang="en-GB">End Date</label>
+        </input-field>
+
+        <input-field type="colorpicker">
+            <name>textColor</name>
+            <label lang="de-DE">Textfarbe</label>
+            <label lang="en-GB">Text Color</label>
+            <css>act-information-bar-text-color</css>
+            <defaultValue>#FFFFFF</defaultValue>
+        </input-field>
+
+        <input-field type="colorpicker">
+            <name>backgroundColor</name>
+            <label lang="de-DE">Hintergrundfarbe</label>
+            <label lang="en-GB">Background Color</label>
+            <css>act-information-bar-background-color</css>
+            <defaultValue>#000000</defaultValue>
+        </input-field>
+
+        <input-field type="int">
+            <name>paddingTop</name>
+            <label lang="de-DE">Innenabstand oben (in Pixeln)</label>
+            <label lang="en-GB">Padding top (in pixels)</label>
+            <defaultValue>15</defaultValue>
+            <min>5</min>
+            <max>50</max>
+        </input-field>
+
+        <input-field type="int">
+            <name>paddingBottom</name>
+            <label lang="de-DE">Innenabstand unten (in Pixeln)</label>
+            <label lang="en-GB">Padding bottom (in pixels)</label>
+            <defaultValue>15</defaultValue>
+            <min>5</min>
+            <max>50</max>
+        </input-field>
+
+        <input-field type="int">
+            <name>fontSize</name>
+            <label lang="de-DE">Schriftgröße (in Pixeln)</label>
+            <label lang="en-GB">Font Size (in pixels)</label>
+            <defaultValue>14</defaultValue>
+            <min>10</min>
+            <max>30</max>
+        </input-field>
+
+        <input-field type="bool">
+            <name>showButton</name>
+            <label lang="de-DE">Button anzeigen</label>
+            <label lang="en-GB">Show Button</label>
+            <defaultValue>false</defaultValue>
+        </input-field>
+
+        <input-field type="text">
+            <name>buttonText</name>
+            <label lang="de-DE">Button Text</label>
+            <label lang="en-GB">Button Text</label>
+        </input-field>
+
+        <input-field type="text">
+            <name>buttonUrl</name>
+            <label lang="de-DE">Button URL</label>
+            <label lang="en-GB">Button URL</label>
+        </input-field>
+
+        <input-field type="single-select">
+            <name>buttonTarget</name>
+            <label lang="de-DE">Button Target</label>
+            <label lang="en-GB">Button Target</label>
+            <options>
+                <option>
+                    <id>_self</id>
+                    <name lang="de-DE">Im selben Fenster öffnen</name>
+                    <name lang="en-GB">Open in same window</name>
+                </option>
+                <option>
+                    <id>_blank</id>
+                    <name lang="de-DE">In neuem Fenster öffnen</name>
+                    <name lang="en-GB">Open in new window</name>
+                </option>
+            </options>
+            <defaultValue>_self</defaultValue>
+        </input-field>
+
+        <input-field type="text">
+            <name>buttonTitle</name>
+            <label lang="de-DE">Button Title</label>
+            <label lang="en-GB">Button Title</label>
+        </input-field>
+
+        <input-field type="colorpicker">
+            <name>buttonTextColor</name>
+            <label lang="de-DE">Button Textfarbe</label>
+            <label lang="en-GB">Button Text Color</label>
+            <css>act-information-bar-button-text-color</css>
+            <defaultValue>#FFFFFF</defaultValue>
+        </input-field>
+
+        <input-field type="colorpicker">
+            <name>buttonTextColorHover</name>
+            <label lang="de-DE">Button Textfarbe (Hover)</label>
+            <label lang="en-GB">Button Text Color (Hover)</label>
+            <css>act-information-bar-button-text-color-hover</css>
+            <defaultValue>#FFFFFF</defaultValue>
+        </input-field>
+
+        <input-field type="colorpicker">
+            <name>buttonBorderColor</name>
+            <label lang="de-DE">Button Rahmenfarbe</label>
+            <label lang="en-GB">Button Border Color</label>
+            <css>act-information-bar-button-border-color</css>
+            <defaultValue>#FFFFFF</defaultValue>
+        </input-field>
+
+        <input-field type="colorpicker">
+            <name>buttonBorderColorHover</name>
+            <label lang="de-DE">Button Rahmenfarbe (Hover)</label>
+            <label lang="en-GB">Button Border Color (Hover)</label>
+            <css>act-information-bar-button-border-color-hover</css>
+            <defaultValue>#FFFFFF</defaultValue>
+        </input-field>
+
+        <input-field type="int">
+            <name>buttonBorderWidth</name>
+            <label lang="de-DE">Button Rahmendicke (in Pixeln)</label>
+            <label lang="en-GB">Button Border Width (in pixels)</label>
+            <defaultValue>1</defaultValue>
+            <min>1</min>
+            <max>4</max>
+        </input-field>
+
+        <input-field type="colorpicker">
+            <name>buttonBackgroundColor</name>
+            <label lang="de-DE">Button Hintergrundfarbe</label>
+            <label lang="en-GB">Button Background Color</label>
+            <css>act-information-bar-button-background-color</css>
+            <defaultValue>transparent</defaultValue>
+        </input-field>
+
+        <input-field type="colorpicker">
+            <name>buttonBackgroundColorHover</name>
+            <label lang="de-DE">Button Hintergrundfarbe (Hover)</label>
+            <label lang="en-GB">Button Background Color (Hover)</label>
+            <css>act-information-bar-button-background-color-hover</css>
+            <defaultValue>transparent</defaultValue>
+        </input-field>
+    </card>
+</config>
