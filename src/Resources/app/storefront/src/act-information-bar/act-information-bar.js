@@ -18,7 +18,17 @@ export default class ActInformationBar extends Plugin {
         this.lines = this.message.split('\n').filter(line => line.trim() !== '');
         this.currentLineIndex = 0;
 
-        if (this.lines.length > 0) {
+        if (this.lines.length === 1) {
+            // Nur eine Zeile: dauerhaft anzeigen, keine Animation
+            const messageElement = document.createElement('div');
+            messageElement.textContent = this.lines[0];
+            messageElement.style.opacity = '1';
+            this.messageContainer.innerHTML = '';
+            this.messageContainer.appendChild(messageElement);
+            return;
+        }
+
+        if (this.lines.length > 1) {
             this.showNextLine();
         }
     }

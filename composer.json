@@ -3,7 +3,7 @@
   "description": "A plugin to display a time-controlled information bar with a customizable message.",
   "type": "shopware-platform-plugin",
   "license": "MIT",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "authors": [
     {
       "name": "Ralph Geldmacher",
