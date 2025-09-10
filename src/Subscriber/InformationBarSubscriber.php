@@ -37,7 +37,7 @@ class InformationBarSubscriber implements EventSubscriberInterface
         $show = $this->shouldShowBar($config['isActive'], $now, $start, $end);
 
         $informationBarData = new ArrayStruct(array_merge($config, ['show' => $show]));
-        $event->getPage()->getHeader()->addExtension('actInformationBar', $informationBarData);
+        $event->getPage()->addExtension('actInformationBar', $informationBarData);
     }
 
     private function isAjaxRequest(GenericPageLoadedEvent $event): bool
