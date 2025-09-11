@@ -240,6 +240,10 @@ For issues and feature requests, please use the GitHub issue tracker.
 
 This plugin is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+## Credits
+
+Developed by Actualize
+
 ---
 
 Made with ❤️ for the Shopware Community
