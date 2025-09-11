@@ -6,7 +6,7 @@ A Shopware 6 plugin that displays a customizable, time-controlled information ba
 
 | Plugin Version | Shopware Version | Branch | Download |
 |----------------|------------------|---------|-----------|
-| 1.1.x | 6.7.1+ | main | [Latest Release](https://github.com/actualizer/ActInformationBar/releases/latest) |
+| 1.1.x | 6.7.1+ | main | [v1.1.0](https://github.com/actualizer/ActInformationBar/releases/tag/v1.1.0) |
 | 1.0.x | 6.5.0 - 6.6.x | [shopware-6.6](https://github.com/actualizer/ActInformationBar/tree/shopware-6.6) | [v1.0.3](https://github.com/actualizer/ActInformationBar/releases/tag/v1.0.3) |
 
 ## Features
