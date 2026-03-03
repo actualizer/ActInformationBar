@@ -11,6 +11,11 @@
       "homepage": "https://www.actualize.de"
     }
   ],
+  "require": {
+    "shopware/core": ">=6.6 <=6.8",
+    "shopware/storefront": ">=6.6 <=6.8",
+    "php": ">=8.2"
+  },
   "autoload": {
     "psr-4": {
       "Act\\InformationBar\\": "src/"
