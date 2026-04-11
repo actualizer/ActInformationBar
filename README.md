@@ -11,15 +11,15 @@ A Shopware 6 plugin that displays a customizable, time-controlled information ba
 
 ## Features
 
-- ✅ Time-controlled display with start and end dates
-- ✅ Animated scrolling text for dynamic messaging
-- ✅ Customizable appearance (colors, fonts, padding)
-- ✅ Optional call-to-action button
-- ✅ Full-width or container layout options
-- ✅ Responsive design
-- ✅ AJAX request awareness (no display on AJAX calls)
-- ✅ Multi-language support (German & English)
-- ✅ Compatible with Shopware 6.7.1+
+- Time-controlled display with start and end dates
+- Animated scrolling text for dynamic messaging
+- Customizable appearance (colors, fonts, padding)
+- Optional call-to-action button
+- Full-width or container layout options
+- Responsive design
+- AJAX request awareness (no display on AJAX calls)
+- Multi-language support (German & English)
+- Compatible with Shopware 6.7.1+
 
 ## Requirements
 
@@ -113,40 +113,6 @@ A Shopware 6 plugin that displays a customizable, time-controlled information ba
 - Viewport-aware animation speed
 - Automatic restart on completion
 - Touch-friendly on mobile devices
-
-## File Structure
-
-```
-ActInformationBar/
-├── composer.json
-├── README.md
-├── LICENSE
-├── src/
-│   ├── ActInformationBar.php
-│   ├── Resources/
-│   │   ├── config/
-│   │   │   ├── config.xml
-│   │   │   └── services.xml
-│   │   ├── snippet/
-│   │   │   ├── de_DE/
-│   │   │   │   └── config.de-DE.json
-│   │   │   └── en_GB/
-│   │   │       └── config.en-GB.json
-│   │   ├── public/
-│   │   │   └── storefront/
-│   │   │       ├── css/
-│   │   │       │   └── information-bar.css
-│   │   │       └── js/
-│   │   │           └── information-bar.js
-│   │   └── views/
-│   │       └── storefront/
-│   │           ├── base.html.twig
-│   │           └── layout/
-│   │               └── header/
-│   │                   └── act-information-bar.html.twig
-│   └── Subscriber/
-│       └── InformationBarSubscriber.php
-```
 
 ## Development
 
