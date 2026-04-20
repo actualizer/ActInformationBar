@@ -29,7 +29,8 @@ class InformationBarSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $config = $this->getConfigValues();
+        $salesChannelId = $event->getSalesChannelContext()->getSalesChannelId();
+        $config = $this->getConfigValues($salesChannelId);
         $now = new \DateTime();
         $start = $this->getDateTime($config['startDate']);
         $end = $this->getDateTime($config['endDate']);
@@ -45,9 +46,9 @@ class InformationBarSubscriber implements EventSubscriberInterface
         return $event->getRequest()->isXmlHttpRequest();
     }
 
-    private function getConfigValues(): array
+    private function getConfigValues(string $salesChannelId): array
     {
-        $config = $this->systemConfigService->get('ActInformationBar.config') ?? [];
+        $config = $this->systemConfigService->get('ActInformationBar.config', $salesChannelId) ?? [];
 
         return [
             'isActive' => $config['isActive'] ?? true,

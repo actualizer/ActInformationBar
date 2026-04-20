@@ -36,21 +36,23 @@ class ScssVariablesSubscriber implements EventSubscriberInterface
      */
     public function onAddScssVariables(ThemeCompilerEnrichScssVariablesEvent $event): void
     {
+        $salesChannelId = $event->getSalesChannelId();
+
         // Information bar styling variables
-        $textColor = $this->systemConfigService->get('ActInformationBar.config.textColor') ?? '#FFFFFF';
-        $backgroundColor = $this->systemConfigService->get('ActInformationBar.config.backgroundColor') ?? '#000000';
-        $paddingTop = $this->systemConfigService->get('ActInformationBar.config.paddingTop') ?? 15;
-        $paddingBottom = $this->systemConfigService->get('ActInformationBar.config.paddingBottom') ?? 15;
-        $fontSize = $this->systemConfigService->get('ActInformationBar.config.fontSize') ?? 14;
-        
+        $textColor = $this->systemConfigService->get('ActInformationBar.config.textColor', $salesChannelId) ?? '#FFFFFF';
+        $backgroundColor = $this->systemConfigService->get('ActInformationBar.config.backgroundColor', $salesChannelId) ?? '#000000';
+        $paddingTop = $this->systemConfigService->get('ActInformationBar.config.paddingTop', $salesChannelId) ?? 15;
+        $paddingBottom = $this->systemConfigService->get('ActInformationBar.config.paddingBottom', $salesChannelId) ?? 15;
+        $fontSize = $this->systemConfigService->get('ActInformationBar.config.fontSize', $salesChannelId) ?? 14;
+
         // Button styling variables
-        $buttonTextColor = $this->systemConfigService->get('ActInformationBar.config.buttonTextColor') ?? '#FFFFFF';
-        $buttonTextColorHover = $this->systemConfigService->get('ActInformationBar.config.buttonTextColorHover') ?? '#FFFFFF';
-        $buttonBorderColor = $this->systemConfigService->get('ActInformationBar.config.buttonBorderColor') ?? '#FFFFFF';
-        $buttonBorderColorHover = $this->systemConfigService->get('ActInformationBar.config.buttonBorderColorHover') ?? '#FFFFFF';
-        $buttonBorderWidth = $this->systemConfigService->get('ActInformationBar.config.buttonBorderWidth') ?? 1;
-        $buttonBackgroundColor = $this->systemConfigService->get('ActInformationBar.config.buttonBackgroundColor') ?? 'transparent';
-        $buttonBackgroundColorHover = $this->systemConfigService->get('ActInformationBar.config.buttonBackgroundColorHover') ?? 'transparent';
+        $buttonTextColor = $this->systemConfigService->get('ActInformationBar.config.buttonTextColor', $salesChannelId) ?? '#FFFFFF';
+        $buttonTextColorHover = $this->systemConfigService->get('ActInformationBar.config.buttonTextColorHover', $salesChannelId) ?? '#FFFFFF';
+        $buttonBorderColor = $this->systemConfigService->get('ActInformationBar.config.buttonBorderColor', $salesChannelId) ?? '#FFFFFF';
+        $buttonBorderColorHover = $this->systemConfigService->get('ActInformationBar.config.buttonBorderColorHover', $salesChannelId) ?? '#FFFFFF';
+        $buttonBorderWidth = $this->systemConfigService->get('ActInformationBar.config.buttonBorderWidth', $salesChannelId) ?? 1;
+        $buttonBackgroundColor = $this->systemConfigService->get('ActInformationBar.config.buttonBackgroundColor', $salesChannelId) ?? 'transparent';
+        $buttonBackgroundColorHover = $this->systemConfigService->get('ActInformationBar.config.buttonBackgroundColorHover', $salesChannelId) ?? 'transparent';
 
         // Add information bar variables to SCSS compilation
         $event->addVariable('act-information-bar-text-color', $textColor);
