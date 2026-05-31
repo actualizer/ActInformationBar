@@ -3,18 +3,23 @@
   "description": "A plugin to display a time-controlled information bar with a customizable message.",
   "type": "shopware-platform-plugin",
   "license": "MIT",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "authors": [
     {
-      "name": "Ralph Geldmacher",
-      "email": "ralph@actualize.de",
-      "homepage": "https://www.actualize.de"
+      "name": "Actualize",
+      "email": "plugin@actualize.de",
+      "homepage": "https://actualize.de",
+      "role": "Developer"
     }
   ],
   "require": {
     "shopware/core": ">=6.6 <=6.8",
     "shopware/storefront": ">=6.6 <=6.8",
     "php": ">=8.2"
+  },
+  "scripts": {
+    "format": "docker run --rm -v $(pwd):/ext shopware/shopware-cli:latest extension format /ext",
+    "check": "docker run --rm -v $(pwd):/ext shopware/shopware-cli:latest extension validate --full /ext"
   },
   "autoload": {
     "psr-4": {
@@ -26,6 +31,18 @@
     "label": {
       "de-DE": "Actualize: Zeitgesteuerte Informationszeile",
       "en-GB": "Actualize: Time-controlled Information Bar"
+    },
+    "description": {
+      "de-DE": "Zeigt eine zeitgesteuerte Informationszeile mit anpassbarer Nachricht und optionalem Button an; Farben, Abstände und Anzeigezeitraum sind je Sales Channel konfigurierbar.",
+      "en-GB": "Displays a time-controlled information bar with a customizable message and optional button in the storefront; colors, spacing and display period are configurable per sales channel."
+    },
+    "manufacturerLink": {
+      "de-DE": "https://actualize.de",
+      "en-GB": "https://actualize.de"
+    },
+    "supportLink": {
+      "de-DE": "https://actualize.de",
+      "en-GB": "https://actualize.de"
     }
   }
 }

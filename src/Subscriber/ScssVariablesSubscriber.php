@@ -39,20 +39,20 @@ class ScssVariablesSubscriber implements EventSubscriberInterface
         $salesChannelId = $event->getSalesChannelId();
 
         // Information bar styling variables
-        $textColor = $this->systemConfigService->get('ActInformationBar.config.textColor', $salesChannelId) ?? '#FFFFFF';
-        $backgroundColor = $this->systemConfigService->get('ActInformationBar.config.backgroundColor', $salesChannelId) ?? '#000000';
-        $paddingTop = $this->systemConfigService->get('ActInformationBar.config.paddingTop', $salesChannelId) ?? 15;
-        $paddingBottom = $this->systemConfigService->get('ActInformationBar.config.paddingBottom', $salesChannelId) ?? 15;
-        $fontSize = $this->systemConfigService->get('ActInformationBar.config.fontSize', $salesChannelId) ?? 14;
+        $textColor = $this->getStringConfig('textColor', $salesChannelId, '#FFFFFF');
+        $backgroundColor = $this->getStringConfig('backgroundColor', $salesChannelId, '#000000');
+        $paddingTop = $this->getNumericConfig('paddingTop', $salesChannelId, 15);
+        $paddingBottom = $this->getNumericConfig('paddingBottom', $salesChannelId, 15);
+        $fontSize = $this->getNumericConfig('fontSize', $salesChannelId, 14);
 
         // Button styling variables
-        $buttonTextColor = $this->systemConfigService->get('ActInformationBar.config.buttonTextColor', $salesChannelId) ?? '#FFFFFF';
-        $buttonTextColorHover = $this->systemConfigService->get('ActInformationBar.config.buttonTextColorHover', $salesChannelId) ?? '#FFFFFF';
-        $buttonBorderColor = $this->systemConfigService->get('ActInformationBar.config.buttonBorderColor', $salesChannelId) ?? '#FFFFFF';
-        $buttonBorderColorHover = $this->systemConfigService->get('ActInformationBar.config.buttonBorderColorHover', $salesChannelId) ?? '#FFFFFF';
-        $buttonBorderWidth = $this->systemConfigService->get('ActInformationBar.config.buttonBorderWidth', $salesChannelId) ?? 1;
-        $buttonBackgroundColor = $this->systemConfigService->get('ActInformationBar.config.buttonBackgroundColor', $salesChannelId) ?? 'transparent';
-        $buttonBackgroundColorHover = $this->systemConfigService->get('ActInformationBar.config.buttonBackgroundColorHover', $salesChannelId) ?? 'transparent';
+        $buttonTextColor = $this->getStringConfig('buttonTextColor', $salesChannelId, '#FFFFFF');
+        $buttonTextColorHover = $this->getStringConfig('buttonTextColorHover', $salesChannelId, '#FFFFFF');
+        $buttonBorderColor = $this->getStringConfig('buttonBorderColor', $salesChannelId, '#FFFFFF');
+        $buttonBorderColorHover = $this->getStringConfig('buttonBorderColorHover', $salesChannelId, '#FFFFFF');
+        $buttonBorderWidth = $this->getNumericConfig('buttonBorderWidth', $salesChannelId, 1);
+        $buttonBackgroundColor = $this->getStringConfig('buttonBackgroundColor', $salesChannelId, 'transparent');
+        $buttonBackgroundColorHover = $this->getStringConfig('buttonBackgroundColorHover', $salesChannelId, 'transparent');
 
         // Add information bar variables to SCSS compilation
         $event->addVariable('act-information-bar-text-color', $textColor);
@@ -69,5 +69,28 @@ class ScssVariablesSubscriber implements EventSubscriberInterface
         $event->addVariable('act-information-bar-button-border-width', $buttonBorderWidth . 'px');
         $event->addVariable('act-information-bar-button-background-color', $buttonBackgroundColor);
         $event->addVariable('act-information-bar-button-background-color-hover', $buttonBackgroundColorHover);
+    }
+
+    /**
+     * SystemConfigService::get() is broadly typed (array|bool|float|int|string|null).
+     * Fall back to the default unless the stored value is actually a string, so the
+     * value passed into the SCSS compiler is always a valid string.
+     */
+    private function getStringConfig(string $key, ?string $salesChannelId, string $default): string
+    {
+        $value = $this->systemConfigService->get('ActInformationBar.config.' . $key, $salesChannelId);
+
+        return is_string($value) ? $value : $default;
+    }
+
+    /**
+     * Same broad-type guard for numeric variables; returns a string so it can be
+     * concatenated with the "px" unit suffix.
+     */
+    private function getNumericConfig(string $key, ?string $salesChannelId, int $default): string
+    {
+        $value = $this->systemConfigService->get('ActInformationBar.config.' . $key, $salesChannelId);
+
+        return is_numeric($value) ? (string) $value : (string) $default;
     }
 }

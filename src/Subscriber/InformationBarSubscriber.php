@@ -46,6 +46,9 @@ class InformationBarSubscriber implements EventSubscriberInterface
         return $event->getRequest()->isXmlHttpRequest();
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function getConfigValues(string $salesChannelId): array
     {
         $config = $this->systemConfigService->get('ActInformationBar.config', $salesChannelId) ?? [];

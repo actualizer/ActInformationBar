@@ -7,9 +7,7 @@ use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
 use Shopware\Core\Framework\Plugin\Context\ActivateContext;
 use Shopware\Storefront\Framework\Asset\AssetRegistrationService;
-use Symfony\Component\Config\FileLocator;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 class ActInformationBar extends Plugin
 {
@@ -17,18 +15,7 @@ class ActInformationBar extends Plugin
     {
         parent::boot();
     }
-    
-    /**
-     * @param ContainerBuilder $container
-     */
-    public function build(ContainerBuilder $container): void
-    {
-        parent::build($container);
 
-        $loader = new XmlFileLoader($container, new FileLocator(__DIR__ . '/Resources/config'));
-        $loader->load('services.xml');
-    }
-    
     public function install(InstallContext $installContext): void
     {
         parent::install($installContext);
@@ -52,8 +39,18 @@ class ActInformationBar extends Plugin
      */
     private function compileTheme(): void
     {
+        $container = $this->container;
+        if ($container === null) {
+            return;
+        }
+
+        $kernel = $container->get('kernel');
+        if (!$kernel instanceof KernelInterface) {
+            return;
+        }
+
         // Execute theme compile command
-        $process = $this->container->get('kernel')->getProjectDir() . '/bin/console theme:compile';
+        $process = $kernel->getProjectDir() . '/bin/console theme:compile';
         exec($process);
     }
     
