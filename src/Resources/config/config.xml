@@ -8,6 +8,10 @@
         <title lang="de-DE">Allgemeine Einstellungen</title>
         <title lang="en-GB">General Settings</title>
 
+        <component name="act-information-bar-info">
+            <name>informationBarInfo</name>
+        </component>
+
         <input-field type="bool">
             <name>isActive</name>
             <label lang="de-DE">Aktiv</label>

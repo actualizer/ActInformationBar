@@ -1,0 +1,23 @@
+{
+  "base": "/bundles/actinformationbar/administration/",
+  "entryPoints": {
+    "act-information-bar": {
+      "css": [],
+      "dynamic": [],
+      "js": [
+        "/bundles/actinformationbar/administration/assets/act-information-bar-Dzsqsyir.js"
+      ],
+      "legacy": false,
+      "preload": []
+    }
+  },
+  "legacy": false,
+  "metadatas": {},
+  "version": [
+    "7.1.0",
+    7,
+    1,
+    0
+  ],
+  "viteServer": null
+}

@@ -1,0 +1,10 @@
+{
+    "actInformationBar": {
+        "settings": {
+            "info": {
+                "description": "Zeigt eine zeitgesteuerte Informationszeile mit anpassbarer Nachricht und optionalem Button im Storefront an.",
+                "issues": "Probleme oder Feature-Wünsche?"
+            }
+        }
+    }
+}

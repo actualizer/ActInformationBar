@@ -1,0 +1,10 @@
+{
+    "actInformationBar": {
+        "settings": {
+            "info": {
+                "description": "Displays a time-controlled information bar with a customizable message and optional button in the storefront.",
+                "issues": "Problems or feature requests?"
+            }
+        }
+    }
+}
