@@ -1,9 +1,9 @@
 {
-  "name": "act/information-bar",
+  "name": "actualizer/information-bar",
   "description": "A plugin to display a time-controlled information bar with a customizable message.",
   "type": "shopware-platform-plugin",
   "license": "MIT",
-  "version": "1.0.9",
+  "version": "1.2.0",
   "authors": [
     {
       "name": "Actualize",
