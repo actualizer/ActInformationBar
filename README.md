@@ -2,13 +2,6 @@
 
 A Shopware 6 plugin that displays a customizable, time-controlled information bar at the top of your storefront with dynamic messaging capabilities.
 
-## Version Compatibility
-
-| Plugin Version | Shopware Version | Branch | Download |
-|----------------|------------------|---------|-----------|
-| 1.1.x | 6.7.1+ | main | [v1.1.0](https://github.com/actualizer/ActInformationBar/releases/tag/v1.1.0) |
-| 1.0.x | 6.5.0 - 6.6.x | [shopware-6.6](https://github.com/actualizer/ActInformationBar/tree/shopware-6.6) | [v1.0.3](https://github.com/actualizer/ActInformationBar/releases/tag/v1.0.3) |
-
 ## Features
 
 - Time-controlled display with start and end dates
@@ -24,7 +17,7 @@ A Shopware 6 plugin that displays a customizable, time-controlled information ba
 ## Requirements
 
 - Shopware 6.7.1 or higher
-- PHP 8.2 or higher (8.3 compatible)
+- PHP 8.3 or higher
 
 ## Installation
 
@@ -186,7 +179,7 @@ Padding Bottom: 20
 ## Compatibility
 
 - **Shopware Version**: 6.7.1+
-- **PHP Version**: 8.2+ (8.3 compatible)
+- **PHP Version**: 8.3+
 - **Browser Support**: All modern browsers (Chrome, Firefox, Safari, Edge)
 - **Mobile**: Fully responsive and touch-friendly
 - **Theme Compatibility**: Works with all Shopware themes
