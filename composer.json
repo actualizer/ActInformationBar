@@ -3,7 +3,7 @@
   "description": "A plugin to display a time-controlled information bar with a customizable message.",
   "type": "shopware-platform-plugin",
   "license": "MIT",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "authors": [
     {
       "name": "Actualize",
@@ -15,7 +15,7 @@
   "require": {
     "shopware/core": ">=6.6 <=6.8",
     "shopware/storefront": ">=6.6 <=6.8",
-    "php": ">=8.2"
+    "php": ">=8.3"
   },
   "scripts": {
     "format": "docker run --rm -v $(pwd):/ext shopware/shopware-cli:latest extension format /ext",
