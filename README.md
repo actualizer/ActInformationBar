@@ -12,12 +12,12 @@ A Shopware 6 plugin that displays a customizable, time-controlled information ba
 - Responsive design
 - AJAX request awareness (no display on AJAX calls)
 - Multi-language support (German & English)
-- Compatible with Shopware 6.6.10+
+- Compatible with Shopware 6.7
 
 ## Requirements
 
-- Shopware 6.6.10 or higher
-- PHP 8.3 or higher
+- Shopware 6.7 or higher
+- PHP 8.4 or higher
 
 ## Installation
 
@@ -178,8 +178,8 @@ Padding Bottom: 20
 
 ## Compatibility
 
-- **Shopware Version**: 6.6.10+
-- **PHP Version**: 8.3+
+- **Shopware Version**: 6.7
+- **PHP Version**: 8.4+
 - **Browser Support**: All modern browsers (Chrome, Firefox, Safari, Edge)
 - **Mobile**: Fully responsive and touch-friendly
 - **Theme Compatibility**: Works with all Shopware themes
