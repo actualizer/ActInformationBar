@@ -21,6 +21,17 @@ A Shopware 6 plugin that displays a customizable, time-controlled information ba
 
 ## Installation
 
+### Via Composer (recommended)
+
+```bash
+composer require actualizer/information-bar
+bin/console plugin:refresh
+bin/console plugin:install --activate ActInformationBar
+bin/console cache:clear
+```
+
+### Manual
+
 1. Download or clone this plugin into your `custom/plugins/` directory
 2. Install and activate the plugin via CLI:
    ```bash
