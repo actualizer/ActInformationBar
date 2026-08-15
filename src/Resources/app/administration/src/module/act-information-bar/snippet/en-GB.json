@@ -1,10 +1,55 @@
 {
     "actInformationBar": {
+        "general": {
+            "mainMenuItemGeneral": "Information bar",
+            "descriptionTextModule": "Maintain information bar messages per sales channel and language"
+        },
         "settings": {
             "info": {
                 "description": "Displays a time-controlled information bar with a customizable message and optional button in the storefront.",
+                "openModuleLink": "Edit information bar messages",
                 "issues": "Problems or feature requests?"
             }
+        },
+        "detail": {
+            "contentCardTitle": "Content",
+            "messageLabel": "Message (one line per display)",
+            "messageHelpText": "Each line is displayed in turn",
+            "buttonTextLabel": "Button text",
+            "buttonUrlLabel": "Button URL",
+            "buttonTitleLabel": "Button title",
+            "saveSuccess": "The settings have been saved.",
+            "saveTextsError": "The texts could not be saved.",
+            "loadTextsError": "The texts could not be loaded.",
+            "loadConfigError": "The appearance settings could not be loaded.",
+            "appearanceCardTitle": "Appearance",
+            "activeLabel": "Active",
+            "appearanceButtonGroupTitle": "Button",
+            "appearanceColorsGroupTitle": "Colors, Spacing & Font Size",
+            "appearanceLanguageHint": "These settings apply to all languages of the selected sales channel.",
+            "appearanceStatusGroupTitle": "Status & Scheduling",
+            "backgroundColorLabel": "Background color",
+            "buttonBackgroundColorHoverLabel": "Button background color (hover)",
+            "buttonBackgroundColorLabel": "Button background color",
+            "buttonBorderColorHoverLabel": "Button border color (hover)",
+            "buttonBorderColorLabel": "Button border color",
+            "buttonBorderWidthLabel": "Button border width (in pixels)",
+            "buttonTargetBlankOption": "Open in new window",
+            "buttonTargetLabel": "Button target",
+            "buttonTargetSelfOption": "Open in same window",
+            "buttonTextColorHoverLabel": "Button text color (hover)",
+            "buttonTextColorLabel": "Button text color",
+            "displayDurationLabel": "Display duration per line (in seconds)",
+            "endDateLabel": "End date",
+            "fontSizeLabel": "Font size (in pixels)",
+            "fullWidthLabel": "Full width",
+            "paddingBottomLabel": "Padding bottom (in pixels)",
+            "paddingTopLabel": "Padding top (in pixels)",
+            "saveConfigError": "The appearance settings could not be saved.",
+            "showButtonLabel": "Show button",
+            "startDateLabel": "Start date",
+            "textColorLabel": "Text color",
+            "themeCompileHint": "Changes to colors and spacing only become visible after a theme compilation."
         }
     }
 }

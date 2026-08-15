@@ -6,7 +6,20 @@
     <services>
         <service id="Act\InformationBar\Subscriber\InformationBarSubscriber">
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+            <argument type="service" id="Act\InformationBar\Service\InformationBarTextLoader"/>
             <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Act\InformationBar\Service\InformationBarTextLoader">
+            <argument type="service" id="act_information_bar.repository"/>
+        </service>
+
+        <service id="Act\InformationBar\Content\InformationBar\InformationBarDefinition">
+            <tag name="shopware.entity.definition" entity="act_information_bar"/>
+        </service>
+
+        <service id="Act\InformationBar\Content\InformationBar\Aggregate\InformationBarTranslation\InformationBarTranslationDefinition">
+            <tag name="shopware.entity.definition"/>
         </service>
     </services>
 </container>

@@ -1,0 +1,305 @@
+{% block act_information_bar_detail %}
+<sw-page class="act-information-bar-detail">
+    {% block act_information_bar_detail_smart_bar_header %}
+    <template #smart-bar-header>
+        <h2>{{ $tc('actInformationBar.general.mainMenuItemGeneral') }}</h2>
+    </template>
+    {% endblock %}
+
+    {% block act_information_bar_detail_language_switch %}
+    <template #language-switch>
+        <sw-language-switch @on-change="onLanguageChanged"></sw-language-switch>
+    </template>
+    {% endblock %}
+
+    {% block act_information_bar_detail_actions %}
+    <template #smart-bar-actions>
+        <mt-button variant="primary" :is-loading="isSaving" @click="onSave">
+            {{ $tc('global.default.save') }}
+        </mt-button>
+    </template>
+    {% endblock %}
+
+    {% block act_information_bar_detail_content %}
+    <template #content>
+        <sw-card-view>
+            <sw-sales-channel-switch @change-sales-channel-id="onSalesChannelChanged"></sw-sales-channel-switch>
+
+            {% block act_information_bar_detail_content_card %}
+            <mt-card :title="$tc('actInformationBar.detail.contentCardTitle')" :is-loading="isLoading">
+                <template v-if="bar">
+                    {% block act_information_bar_detail_field_message %}
+                    <mt-textarea
+                        name="sw-field--act-information-bar-message"
+                        :label="$tc('actInformationBar.detail.messageLabel')"
+                        :help-text="$tc('actInformationBar.detail.messageHelpText')"
+                        :model-value="bar.message"
+                        @update:model-value="onFieldInput('message', $event)"
+                    />
+                    {% endblock %}
+
+                    {% block act_information_bar_detail_field_button_text %}
+                    <mt-text-field
+                        name="sw-field--act-information-bar-button-text"
+                        :label="$tc('actInformationBar.detail.buttonTextLabel')"
+                        :model-value="bar.buttonText"
+                        @update:model-value="onFieldInput('buttonText', $event)"
+                    />
+                    {% endblock %}
+
+                    {% block act_information_bar_detail_field_button_url %}
+                    <mt-text-field
+                        name="sw-field--act-information-bar-button-url"
+                        :label="$tc('actInformationBar.detail.buttonUrlLabel')"
+                        :model-value="bar.buttonUrl"
+                        @update:model-value="onFieldInput('buttonUrl', $event)"
+                    />
+                    {% endblock %}
+
+                    {% block act_information_bar_detail_field_button_title %}
+                    <mt-text-field
+                        name="sw-field--act-information-bar-button-title"
+                        :label="$tc('actInformationBar.detail.buttonTitleLabel')"
+                        :model-value="bar.buttonTitle"
+                        @update:model-value="onFieldInput('buttonTitle', $event)"
+                    />
+                    {% endblock %}
+                </template>
+            </mt-card>
+            {% endblock %}
+
+            {% block act_information_bar_detail_appearance_card %}
+            <mt-card :title="$tc('actInformationBar.detail.appearanceCardTitle')" :is-loading="isLoading">
+                <template v-if="configLoaded">
+                    {% block act_information_bar_detail_appearance_language_hint %}
+                    <mt-banner variant="info">
+                        {{ $tc('actInformationBar.detail.appearanceLanguageHint') }}
+                    </mt-banner>
+                    {% endblock %}
+
+                    {% block act_information_bar_detail_appearance_group_status %}
+                    <h3 class="act-information-bar-detail__appearance-group-title">{{ $tc('actInformationBar.detail.appearanceStatusGroupTitle') }}</h3>
+
+                    {% block act_information_bar_detail_field_is_active %}
+                    <mt-switch
+                        name="sw-field--act-information-bar-is-active"
+                        :label="$tc('actInformationBar.detail.activeLabel')"
+                        :model-value="config['ActInformationBar.config.isActive']"
+                        @update:model-value="onConfigInput('isActive', $event)"
+                    />
+                    {% endblock %}
+
+                    {% block act_information_bar_detail_field_full_width %}
+                    <mt-switch
+                        name="sw-field--act-information-bar-full-width"
+                        :label="$tc('actInformationBar.detail.fullWidthLabel')"
+                        :model-value="config['ActInformationBar.config.fullWidth']"
+                        @update:model-value="onConfigInput('fullWidth', $event)"
+                    />
+                    {% endblock %}
+
+                    {% block act_information_bar_detail_field_display_duration %}
+                    <mt-number-field
+                        name="sw-field--act-information-bar-display-duration"
+                        number-type="int"
+                        :min="1"
+                        :max="10"
+                        :label="$tc('actInformationBar.detail.displayDurationLabel')"
+                        :model-value="config['ActInformationBar.config.displayDuration']"
+                        @update:model-value="onConfigInput('displayDuration', $event)"
+                    />
+                    {% endblock %}
+
+                    {% block act_information_bar_detail_field_group_dates %}
+                    <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0px 30px">
+                        {% block act_information_bar_detail_field_start_date %}
+                        <mt-datepicker
+                            name="sw-field--act-information-bar-start-date"
+                            date-type="datetime"
+                            :label="$tc('actInformationBar.detail.startDateLabel')"
+                            :model-value="config['ActInformationBar.config.startDate']"
+                            @update:model-value="onConfigInput('startDate', $event)"
+                        />
+                        {% endblock %}
+
+                        {% block act_information_bar_detail_field_end_date %}
+                        <mt-datepicker
+                            name="sw-field--act-information-bar-end-date"
+                            date-type="datetime"
+                            :label="$tc('actInformationBar.detail.endDateLabel')"
+                            :model-value="config['ActInformationBar.config.endDate']"
+                            @update:model-value="onConfigInput('endDate', $event)"
+                        />
+                        {% endblock %}
+                    </sw-container>
+                    {% endblock %}
+                    {% endblock %}
+
+                    {% block act_information_bar_detail_appearance_group_colors %}
+                    <h3 class="act-information-bar-detail__appearance-group-title">{{ $tc('actInformationBar.detail.appearanceColorsGroupTitle') }}</h3>
+
+                    {% block act_information_bar_detail_field_group_colors %}
+                    <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0px 30px">
+                        {% block act_information_bar_detail_field_text_color %}
+                        <mt-colorpicker
+                            name="sw-field--act-information-bar-text-color"
+                            :label="$tc('actInformationBar.detail.textColorLabel')"
+                            :model-value="config['ActInformationBar.config.textColor']"
+                            @update:model-value="onConfigInput('textColor', $event)"
+                        />
+                        {% endblock %}
+
+                        {% block act_information_bar_detail_field_background_color %}
+                        <mt-colorpicker
+                            name="sw-field--act-information-bar-background-color"
+                            :label="$tc('actInformationBar.detail.backgroundColorLabel')"
+                            :model-value="config['ActInformationBar.config.backgroundColor']"
+                            @update:model-value="onConfigInput('backgroundColor', $event)"
+                        />
+                        {% endblock %}
+                    </sw-container>
+                    {% endblock %}
+
+                    {% block act_information_bar_detail_field_group_padding %}
+                    <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0px 30px">
+                        {% block act_information_bar_detail_field_padding_top %}
+                        <mt-text-field
+                            name="sw-field--act-information-bar-padding-top"
+                            :label="$tc('actInformationBar.detail.paddingTopLabel')"
+                            :model-value="config['ActInformationBar.config.paddingTop']"
+                            @update:model-value="onConfigInput('paddingTop', $event)"
+                        />
+                        {% endblock %}
+
+                        {% block act_information_bar_detail_field_padding_bottom %}
+                        <mt-text-field
+                            name="sw-field--act-information-bar-padding-bottom"
+                            :label="$tc('actInformationBar.detail.paddingBottomLabel')"
+                            :model-value="config['ActInformationBar.config.paddingBottom']"
+                            @update:model-value="onConfigInput('paddingBottom', $event)"
+                        />
+                        {% endblock %}
+                    </sw-container>
+                    {% endblock %}
+
+                    {% block act_information_bar_detail_field_font_size %}
+                    <mt-text-field
+                        name="sw-field--act-information-bar-font-size"
+                        :label="$tc('actInformationBar.detail.fontSizeLabel')"
+                        :model-value="config['ActInformationBar.config.fontSize']"
+                        @update:model-value="onConfigInput('fontSize', $event)"
+                    />
+                    {% endblock %}
+                    {% endblock %}
+
+                    {% block act_information_bar_detail_appearance_group_button %}
+                    <h3 class="act-information-bar-detail__appearance-group-title">{{ $tc('actInformationBar.detail.appearanceButtonGroupTitle') }}</h3>
+
+                    {% block act_information_bar_detail_field_show_button %}
+                    <mt-switch
+                        name="sw-field--act-information-bar-show-button"
+                        :label="$tc('actInformationBar.detail.showButtonLabel')"
+                        :model-value="config['ActInformationBar.config.showButton']"
+                        @update:model-value="onConfigInput('showButton', $event)"
+                    />
+                    {% endblock %}
+
+                    {% block act_information_bar_detail_field_button_target %}
+                    <mt-select
+                        name="sw-field--act-information-bar-button-target"
+                        :label="$tc('actInformationBar.detail.buttonTargetLabel')"
+                        :options="buttonTargetOptions"
+                        :model-value="config['ActInformationBar.config.buttonTarget']"
+                        @update:model-value="onConfigInput('buttonTarget', $event)"
+                    />
+                    {% endblock %}
+
+                    {% block act_information_bar_detail_field_group_button_text_color %}
+                    <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0px 30px">
+                        {% block act_information_bar_detail_field_button_text_color %}
+                        <mt-colorpicker
+                            name="sw-field--act-information-bar-button-text-color"
+                            :label="$tc('actInformationBar.detail.buttonTextColorLabel')"
+                            :model-value="config['ActInformationBar.config.buttonTextColor']"
+                            @update:model-value="onConfigInput('buttonTextColor', $event)"
+                        />
+                        {% endblock %}
+
+                        {% block act_information_bar_detail_field_button_text_color_hover %}
+                        <mt-colorpicker
+                            name="sw-field--act-information-bar-button-text-color-hover"
+                            :label="$tc('actInformationBar.detail.buttonTextColorHoverLabel')"
+                            :model-value="config['ActInformationBar.config.buttonTextColorHover']"
+                            @update:model-value="onConfigInput('buttonTextColorHover', $event)"
+                        />
+                        {% endblock %}
+                    </sw-container>
+                    {% endblock %}
+
+                    {% block act_information_bar_detail_field_group_button_border_color %}
+                    <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0px 30px">
+                        {% block act_information_bar_detail_field_button_border_color %}
+                        <mt-colorpicker
+                            name="sw-field--act-information-bar-button-border-color"
+                            :label="$tc('actInformationBar.detail.buttonBorderColorLabel')"
+                            :model-value="config['ActInformationBar.config.buttonBorderColor']"
+                            @update:model-value="onConfigInput('buttonBorderColor', $event)"
+                        />
+                        {% endblock %}
+
+                        {% block act_information_bar_detail_field_button_border_color_hover %}
+                        <mt-colorpicker
+                            name="sw-field--act-information-bar-button-border-color-hover"
+                            :label="$tc('actInformationBar.detail.buttonBorderColorHoverLabel')"
+                            :model-value="config['ActInformationBar.config.buttonBorderColorHover']"
+                            @update:model-value="onConfigInput('buttonBorderColorHover', $event)"
+                        />
+                        {% endblock %}
+                    </sw-container>
+                    {% endblock %}
+
+                    {% block act_information_bar_detail_field_button_border_width %}
+                    <mt-text-field
+                        name="sw-field--act-information-bar-button-border-width"
+                        :label="$tc('actInformationBar.detail.buttonBorderWidthLabel')"
+                        :model-value="config['ActInformationBar.config.buttonBorderWidth']"
+                        @update:model-value="onConfigInput('buttonBorderWidth', $event)"
+                    />
+                    {% endblock %}
+
+                    {% block act_information_bar_detail_field_group_button_background_color %}
+                    <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0px 30px">
+                        {% block act_information_bar_detail_field_button_background_color %}
+                        <mt-colorpicker
+                            name="sw-field--act-information-bar-button-background-color"
+                            :label="$tc('actInformationBar.detail.buttonBackgroundColorLabel')"
+                            :model-value="config['ActInformationBar.config.buttonBackgroundColor']"
+                            @update:model-value="onConfigInput('buttonBackgroundColor', $event)"
+                        />
+                        {% endblock %}
+
+                        {% block act_information_bar_detail_field_button_background_color_hover %}
+                        <mt-colorpicker
+                            name="sw-field--act-information-bar-button-background-color-hover"
+                            :label="$tc('actInformationBar.detail.buttonBackgroundColorHoverLabel')"
+                            :model-value="config['ActInformationBar.config.buttonBackgroundColorHover']"
+                            @update:model-value="onConfigInput('buttonBackgroundColorHover', $event)"
+                        />
+                        {% endblock %}
+                    </sw-container>
+                    {% endblock %}
+                    {% endblock %}
+
+                    {% block act_information_bar_detail_appearance_theme_compile_hint %}
+                    <mt-banner variant="attention">
+                        {{ $tc('actInformationBar.detail.themeCompileHint') }}
+                    </mt-banner>
+                    {% endblock %}
+                </template>
+            </mt-card>
+            {% endblock %}
+        </sw-card-view>
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}

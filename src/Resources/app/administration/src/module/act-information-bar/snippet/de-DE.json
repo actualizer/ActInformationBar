@@ -1,10 +1,55 @@
 {
     "actInformationBar": {
+        "general": {
+            "mainMenuItemGeneral": "Informationsleiste",
+            "descriptionTextModule": "Nachrichten der Informationsleiste je Verkaufskanal und Sprache pflegen"
+        },
         "settings": {
             "info": {
                 "description": "Zeigt eine zeitgesteuerte Informationszeile mit anpassbarer Nachricht und optionalem Button im Storefront an.",
+                "openModuleLink": "Nachrichten der Informationsleiste bearbeiten",
                 "issues": "Probleme oder Feature-Wünsche?"
             }
+        },
+        "detail": {
+            "contentCardTitle": "Inhalt",
+            "messageLabel": "Nachricht (eine Zeile pro Anzeige)",
+            "messageHelpText": "Jede Zeile wird nacheinander angezeigt",
+            "buttonTextLabel": "Button-Text",
+            "buttonUrlLabel": "Button-URL",
+            "buttonTitleLabel": "Button-Title",
+            "saveSuccess": "Die Einstellungen wurden gespeichert.",
+            "saveTextsError": "Die Texte konnten nicht gespeichert werden.",
+            "loadTextsError": "Die Texte konnten nicht geladen werden.",
+            "loadConfigError": "Die Darstellungseinstellungen konnten nicht geladen werden.",
+            "appearanceCardTitle": "Darstellung",
+            "activeLabel": "Aktiv",
+            "appearanceButtonGroupTitle": "Button",
+            "appearanceColorsGroupTitle": "Farben, Abstände & Schriftgröße",
+            "appearanceLanguageHint": "Diese Einstellungen gelten für alle Sprachen des gewählten Verkaufskanals.",
+            "appearanceStatusGroupTitle": "Status & Zeitsteuerung",
+            "backgroundColorLabel": "Hintergrundfarbe",
+            "buttonBackgroundColorHoverLabel": "Button Hintergrundfarbe (Hover)",
+            "buttonBackgroundColorLabel": "Button Hintergrundfarbe",
+            "buttonBorderColorHoverLabel": "Button Rahmenfarbe (Hover)",
+            "buttonBorderColorLabel": "Button Rahmenfarbe",
+            "buttonBorderWidthLabel": "Button Rahmendicke (in Pixeln)",
+            "buttonTargetBlankOption": "In neuem Fenster öffnen",
+            "buttonTargetLabel": "Button Target",
+            "buttonTargetSelfOption": "Im selben Fenster öffnen",
+            "buttonTextColorHoverLabel": "Button Textfarbe (Hover)",
+            "buttonTextColorLabel": "Button Textfarbe",
+            "displayDurationLabel": "Anzeigedauer pro Zeile (in Sekunden)",
+            "endDateLabel": "Enddatum",
+            "fontSizeLabel": "Schriftgröße (in Pixeln)",
+            "fullWidthLabel": "Volle Breite",
+            "paddingBottomLabel": "Innenabstand unten (in Pixeln)",
+            "paddingTopLabel": "Innenabstand oben (in Pixeln)",
+            "saveConfigError": "Die Darstellungseinstellungen konnten nicht gespeichert werden.",
+            "showButtonLabel": "Button anzeigen",
+            "startDateLabel": "Startdatum",
+            "textColorLabel": "Textfarbe",
+            "themeCompileHint": "Änderungen an Farben und Abständen werden erst nach einer Theme-Kompilierung sichtbar."
         }
     }
 }

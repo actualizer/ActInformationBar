@@ -3,13 +3,19 @@
         xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/platform/master/src/Core/System/SystemConfig/Schema/config.xsd">
 
     <card>
-
-
         <title lang="de-DE">Allgemeine Einstellungen</title>
         <title lang="en-GB">General Settings</title>
 
+        <!-- The core turns this into a stable CSS class on the card, which the admin
+             stylesheet uses to lay related fields out in pairs. -->
+        <name>actInformationBarSettings</name>
+
         <component name="act-information-bar-info">
             <name>informationBarInfo</name>
+        </component>
+
+        <component name="act-information-bar-section-status">
+            <name>sectionStatus</name>
         </component>
 
         <input-field type="bool">
@@ -23,15 +29,6 @@
             <name>fullWidth</name>
             <label lang="de-DE">Volle Breite</label>
             <label lang="en-GB">Full Width</label>
-        </input-field>
-
-
-        <input-field type="textarea">
-            <name>message</name>
-            <label lang="de-DE">Nachricht (Eine Zeile pro Anzeige)</label>
-            <label lang="en-GB">Message (One line per display)</label>
-            <helpText lang="de-DE">Jede Zeile wird einzeln nacheinander angezeigt</helpText>
-            <helpText lang="en-GB">Each line will be displayed sequentially</helpText>
         </input-field>
 
         <input-field type="int">
@@ -54,6 +51,10 @@
             <label lang="de-DE">Enddatum</label>
             <label lang="en-GB">End Date</label>
         </input-field>
+
+        <component name="act-information-bar-section-colors">
+            <name>sectionColors</name>
+        </component>
 
         <input-field type="colorpicker">
             <name>textColor</name>
@@ -95,23 +96,15 @@
             <defaultValue>14px</defaultValue>
         </input-field>
 
+        <component name="act-information-bar-section-button">
+            <name>sectionButton</name>
+        </component>
+
         <input-field type="bool">
             <name>showButton</name>
             <label lang="de-DE">Button anzeigen</label>
             <label lang="en-GB">Show Button</label>
             <defaultValue>false</defaultValue>
-        </input-field>
-
-        <input-field type="text">
-            <name>buttonText</name>
-            <label lang="de-DE">Button Text</label>
-            <label lang="en-GB">Button Text</label>
-        </input-field>
-
-        <input-field type="text">
-            <name>buttonUrl</name>
-            <label lang="de-DE">Button URL</label>
-            <label lang="en-GB">Button URL</label>
         </input-field>
 
         <input-field type="single-select">
@@ -131,12 +124,6 @@
                 </option>
             </options>
             <defaultValue>_self</defaultValue>
-        </input-field>
-
-        <input-field type="text">
-            <name>buttonTitle</name>
-            <label lang="de-DE">Button Title</label>
-            <label lang="en-GB">Button Title</label>
         </input-field>
 
         <input-field type="colorpicker">

@@ -2,6 +2,7 @@
 
 namespace Act\InformationBar\Subscriber;
 
+use Act\InformationBar\Service\InformationBarTextLoader;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Storefront\Page\GenericPageLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -11,8 +12,10 @@ class InformationBarSubscriber implements EventSubscriberInterface
 {
     private SystemConfigService $systemConfigService;
 
-    public function __construct(SystemConfigService $systemConfigService)
-    {
+    public function __construct(
+        SystemConfigService $systemConfigService,
+        private readonly InformationBarTextLoader $textLoader
+    ) {
         $this->systemConfigService = $systemConfigService;
     }
 
@@ -37,7 +40,15 @@ class InformationBarSubscriber implements EventSubscriberInterface
 
         $show = $this->shouldShowBar($config['isActive'], $now, $start, $end);
 
-        $informationBarData = new ArrayStruct(array_merge($config, ['show' => $show]));
+        $texts = $this->textLoader->load($event->getSalesChannelContext());
+
+        $informationBarData = new ArrayStruct(array_merge($config, [
+            'show' => $show && !$texts->isEmpty(),
+            'message' => $texts->message ?? '',
+            'buttonText' => $texts->buttonText ?? '',
+            'buttonTitle' => $texts->buttonTitle ?? '',
+            'buttonUrl' => $texts->buttonUrl ?? '',
+        ]));
         $event->getPage()->addExtension('actInformationBar', $informationBarData);
     }
 
@@ -56,7 +67,6 @@ class InformationBarSubscriber implements EventSubscriberInterface
         return [
             'isActive' => $config['isActive'] ?? true,
             'fullWidth' => $config['fullWidth'] ?? false,
-            'message' => $config['message'] ?? '',
             'displayDuration' => $config['displayDuration'] ?? 3,
             'startDate' => $config['startDate'] ?? '',
             'endDate' => $config['endDate'] ?? '',
@@ -66,10 +76,7 @@ class InformationBarSubscriber implements EventSubscriberInterface
             'paddingBottom' => $config['paddingBottom'] ?? 15,
             'fontSize' => $config['fontSize'] ?? 14,
             'showButton' => $config['showButton'] ?? false,
-            'buttonText' => $config['buttonText'] ?? '',
-            'buttonUrl' => $config['buttonUrl'] ?? '',
             'buttonTarget' => $config['buttonTarget'] ?? '_self',
-            'buttonTitle' => $config['buttonTitle'] ?? '',
             'buttonTextColor' => $config['buttonTextColor'] ?? '',
             'buttonTextColorHover' => $config['buttonTextColorHover'] ?? '',
             'buttonBorderColor' => $config['buttonBorderColor'] ?? '',

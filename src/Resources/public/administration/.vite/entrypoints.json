@@ -2,10 +2,12 @@
   "base": "/bundles/actinformationbar/administration/",
   "entryPoints": {
     "act-information-bar": {
-      "css": [],
+      "css": [
+        "/bundles/actinformationbar/administration/assets/act-information-bar-BppZ7XgR.css"
+      ],
       "dynamic": [],
       "js": [
-        "/bundles/actinformationbar/administration/assets/act-information-bar-Dzsqsyir.js"
+        "/bundles/actinformationbar/administration/assets/act-information-bar-ZOBXTSoM.js"
       ],
       "legacy": false,
       "preload": []

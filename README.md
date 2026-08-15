@@ -4,6 +4,8 @@ A Shopware 6 plugin that displays a customizable, time-controlled information ba
 
 ## Features
 
+- Messages maintainable per sales channel **and** language
+- Dedicated admin page under Content → Information bar with a language and sales channel switch
 - Time-controlled display with start and end dates
 - Rotating messages with smooth fade transitions (one line per rotation)
 - Centered layout that keeps the button in place while the lines change
@@ -42,20 +44,66 @@ bin/console cache:clear
    bin/console cache:clear
    ```
 
+### Updating from 1.3.x
+
+Nothing has to be re-entered. On update the plugin creates its own tables and copies the
+existing message and button texts out of the plugin configuration into them. The storefront
+keeps showing the same texts; they are now editable under Content → Information bar.
+
 ## Configuration
+
+Settings live in two places, because texts are translatable and appearance is not.
+
+### Texts — Content → Information bar
+
+1. Go to Admin Panel → Content → Information bar
+2. Pick the sales channel (or leave it on "All Sales Channels") and the language
+3. Edit the texts and save
+
+This page maintains message, button text, button URL and button title. Each combination of
+sales channel and language holds its own texts.
+
+The page also carries the appearance settings of the selected sales channel. They are the very
+same values as in the plugin configuration — editing them in either place writes to the same
+setting. Because the page has a language switch, it is worth being explicit: switching the
+language does **not** change these values, and a banner on the card says so. They sit here in
+preparation for the planned 1.5.0, which is to allow several bars per sales channel; appearance
+then becomes a property of the individual bar and belongs next to its texts. Until then, use
+whichever of the two places you prefer.
+
+### Appearance — Extensions → Config
 
 1. Go to Admin Panel → Settings → System → Plugins
 2. Find "Actualize: Time-controlled Information Bar" and click on the three dots
 3. Click "Config" to access plugin settings
 
+Colors, spacing, timing and the button target are stored per sales channel and are shared by
+all its languages.
+
 ### Configuration Options
+
+#### Texts (Content → Information bar)
+- **Message**: The text to display, one line per rotation (plain text - HTML is not rendered)
+- **Button Text**: Text displayed on button
+- **Button URL**: Link destination
+- **Button Title**: Tooltip text on hover
+
+If a language has no text of its own, the plugin falls back to the default language of the
+sales channel, then to the system default language, and only then to the global record — in
+that order. An empty message in one language therefore never makes the bar disappear.
+
+The message decides: the first record and language with a non-empty message supplies all four
+texts. Filling in only a button text while leaving the message of that language empty means
+the whole language is skipped and the button text is never shown.
+
+The remaining groups belong to the plugin configuration and are shared by all languages of
+the sales channel.
 
 #### General Settings
 - **Active**: Enable/disable the information bar
 - **Full Width**: Display bar across full browser width or within container
 
 #### Message Settings
-- **Message**: The text to display, one line per rotation (plain text - HTML is not rendered)
 - **Display Duration**: How long each message iteration displays (in seconds)
 - **Font Size**: Text size in pixels (default: 14px)
 
@@ -71,11 +119,8 @@ bin/console cache:clear
 - **Padding Bottom**: Bottom padding in pixels (default: 15px)
 
 #### Call-to-Action Button
-- **Show Button**: Enable/disable CTA button (the button is only rendered when both text and URL are set)
-- **Button Text**: Text displayed on button
-- **Button URL**: Link destination
+- **Show Button**: Enable/disable CTA button (the button is only rendered when both text and URL are set — both are maintained under Content → Information bar)
 - **Button Target**: Link target (_self, _blank). With `_blank` the link carries `rel="noopener noreferrer"` and a visually hidden "opens in a new window" hint for screen readers
-- **Button Title**: Tooltip text on hover
 - **Button Text Color**: Button text color
 - **Button Text Color (Hover)**: Button text color on hover
 - **Button Border Color**: Button border color
@@ -109,6 +154,11 @@ bin/console cache:clear
 ### Events Used
 - `GenericPageLoadedEvent` - Injects information bar data into page
 
+### Data Storage
+- Texts: `act_information_bar` with translations in `act_information_bar_translation`, one
+  record per sales channel plus a global record used as fallback
+- Appearance: Shopware's `system_config`, per sales channel
+
 ### Template Structure
 - Extends `@Storefront/storefront/base.html.twig`
 - Includes custom template for bar rendering
@@ -135,6 +185,9 @@ bin/console theme:compile
 - Monitor animation performance in DevTools
 
 ## Usage Examples
+
+The examples list message and button texts together with the appearance values they go with.
+Texts are maintained under Content → Information bar, everything else in the plugin configuration.
 
 ### Simple Announcement
 ```
@@ -204,11 +257,12 @@ button keeps its position while the lines rotate.
 ## Known Limitations
 
 - One information bar per sales channel
-- **The message is not translatable.** Plugin configuration in Shopware is stored per sales
-  channel, not per language, so every language of a sales channel shows the same message and
-  button text. Separate texts are only possible where each language has its own sales channel.
-  The German and English translations shipped with the plugin cover the admin interface and
-  the screen-reader hints, not the message itself.
+- **Appearance is not translatable.** Colors, spacing and timing are compiled into the theme
+  stylesheet, which Shopware builds per theme and sales channel, not per language. Every
+  language of a sales channel therefore shares one appearance; only the texts differ. The
+  appearance fields on the Content → Information bar page are unaffected by its language
+  switch for that reason. They are placed there for the planned 1.5.0, where several bars per
+  sales channel are to get their own appearance.
 - Messages are plain text; HTML markup is not rendered
 - Very long messages may impact performance
 - Date/time based on server timezone
