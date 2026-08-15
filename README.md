@@ -13,7 +13,7 @@ A Shopware 6 plugin that displays a customizable, time-controlled information ba
 - Responsive design
 - AJAX request awareness (no display on AJAX calls)
 - Accessibility: hidden lines are excluded from screen readers, new-window links are announced as such, and the fade respects reduced-motion preferences
-- Multi-language support (German & English)
+- Multi-language admin interface (German & English)
 - Compatible with Shopware 6.7
 
 ## Requirements
@@ -203,7 +203,12 @@ button keeps its position while the lines rotate.
 
 ## Known Limitations
 
-- One information bar per shop
+- One information bar per sales channel
+- **The message is not translatable.** Plugin configuration in Shopware is stored per sales
+  channel, not per language, so every language of a sales channel shows the same message and
+  button text. Separate texts are only possible where each language has its own sales channel.
+  The German and English translations shipped with the plugin cover the admin interface and
+  the screen-reader hints, not the message itself.
 - Messages are plain text; HTML markup is not rendered
 - Very long messages may impact performance
 - Date/time based on server timezone
