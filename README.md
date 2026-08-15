@@ -5,12 +5,14 @@ A Shopware 6 plugin that displays a customizable, time-controlled information ba
 ## Features
 
 - Time-controlled display with start and end dates
-- Animated scrolling text for dynamic messaging
+- Rotating messages with smooth fade transitions (one line per rotation)
+- Centered layout that keeps the button in place while the lines change
 - Customizable appearance (colors, fonts, padding)
 - Optional call-to-action button
 - Full-width or container layout options
 - Responsive design
 - AJAX request awareness (no display on AJAX calls)
+- Accessibility: hidden lines are excluded from screen readers, new-window links are announced as such, and the fade respects reduced-motion preferences
 - Multi-language support (German & English)
 - Compatible with Shopware 6.7
 
@@ -53,7 +55,7 @@ bin/console cache:clear
 - **Full Width**: Display bar across full browser width or within container
 
 #### Message Settings
-- **Message**: The text to display (supports HTML for links)
+- **Message**: The text to display, one line per rotation (plain text - HTML is not rendered)
 - **Display Duration**: How long each message iteration displays (in seconds)
 - **Font Size**: Text size in pixels (default: 14px)
 
@@ -69,10 +71,10 @@ bin/console cache:clear
 - **Padding Bottom**: Bottom padding in pixels (default: 15px)
 
 #### Call-to-Action Button
-- **Show Button**: Enable/disable CTA button
+- **Show Button**: Enable/disable CTA button (the button is only rendered when both text and URL are set)
 - **Button Text**: Text displayed on button
 - **Button URL**: Link destination
-- **Button Target**: Link target (_self, _blank, etc.)
+- **Button Target**: Link target (_self, _blank). With `_blank` the link carries `rel="noopener noreferrer"` and a visually hidden "opens in a new window" hint for screen readers
 - **Button Title**: Tooltip text on hover
 - **Button Text Color**: Button text color
 - **Button Text Color (Hover)**: Button text color on hover
@@ -90,11 +92,11 @@ bin/console cache:clear
 3. **Page Integration**: Injected at the top of the page body
 4. **Extension System**: Uses Shopware's extension system for clean integration
 
-### Animation Features
-- **Scrolling Text**: Messages scroll horizontally when longer than container
-- **Smooth Transitions**: CSS-based animations for smooth movement
-- **Responsive Behavior**: Adapts to different screen sizes
-- **Performance Optimized**: Uses requestAnimationFrame for smooth animations
+### Message Rotation
+- **One line at a time**: Each line of the message is shown in turn, looping continuously
+- **Smooth Transitions**: CSS opacity fade between lines, skipped when the visitor prefers reduced motion
+- **Stable Layout**: All lines are rendered stacked in a single grid cell, so the bar keeps the width of the longest line and the button does not move while the lines change
+- **Responsive Behavior**: The button wraps below the message on narrow viewports
 
 ### Integration Points
 - Subscribes to `GenericPageLoadedEvent`
@@ -113,10 +115,9 @@ bin/console cache:clear
 - Conditional display based on configuration
 
 ### JavaScript Features
-- Dynamic text animation calculation
-- Viewport-aware animation speed
-- Automatic restart on completion
-- Touch-friendly on mobile devices
+- Renders all message lines once and only toggles their visibility via CSS classes
+- Hidden lines carry `aria-hidden` so screen readers announce the visible line only
+- Continuous loop with configurable display duration
 
 ## Development
 
@@ -162,13 +163,18 @@ Start Date: 2024-03-01 00:00:00
 End Date: 2024-03-03 04:00:00
 ```
 
-### Multiple Languages with Link
+### Multiple Rotating Lines
 ```
-Message: "New products available! <a href='/new'>View collection</a>"
-Font Size: 16
-Padding Top: 20
-Padding Bottom: 20
+Message:
+Free shipping on orders over €50!
+New autumn collection available now
+Customer service: Mon-Fri 9am-5pm
+Display Duration: 4
+Show Button: Yes
+Button Text: "Learn more"
 ```
+Each line is shown in turn. The bar reserves the width of the longest line, so the
+button keeps its position while the lines rotate.
 
 ## Styling Tips
 
@@ -177,9 +183,9 @@ Padding Bottom: 20
 - Use hex colors for precise control
 - Test on different devices for readability
 
-### Animation Speed
-- Shorter messages (1-3 seconds duration)
-- Longer messages (5-10 seconds for full scroll)
+### Display Duration
+- Short lines (1-3 seconds)
+- Longer lines (5-10 seconds so they can be read completely)
 - Adjust based on message importance
 
 ### Responsive Design
@@ -198,7 +204,7 @@ Padding Bottom: 20
 ## Known Limitations
 
 - One information bar per shop
-- HTML in messages should be used carefully
+- Messages are plain text; HTML markup is not rendered
 - Very long messages may impact performance
 - Date/time based on server timezone
 

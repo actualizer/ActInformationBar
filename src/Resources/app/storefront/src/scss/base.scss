@@ -14,9 +14,26 @@ $act-information-bar-button-border-width: 1px !default;
 $act-information-bar-button-background-color: transparent !default;
 $act-information-bar-button-background-color-hover: transparent !default;
 
+// Gap between message and button. Rows get the smaller value so the button
+// stays close to the text once it wraps below it on narrow viewports.
+$act-information-bar-gap-row: 0.5rem !default;
+$act-information-bar-gap-column: 1rem !default;
+
+// Fade duration of the message lines. Keep in sync with `fadeDuration`
+// in act-information-bar.js.
+$act-information-bar-fade-duration: 500ms !default;
+
 // Information Bar styling
 .act-info-bar {
     font-size: $act-information-bar-font-size;
+
+    &-inner {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: $act-information-bar-gap-row $act-information-bar-gap-column;
+    }
 
     &-content {
         background-color: $act-information-bar-background-color;
@@ -30,6 +47,34 @@ $act-information-bar-button-background-color-hover: transparent !default;
         color: $act-information-bar-text-color;
         padding-top: $act-information-bar-padding-top;
         padding-bottom: $act-information-bar-padding-bottom;
+    }
+}
+
+// All message lines are rendered at once and stacked in a single grid cell.
+// The container therefore keeps the width of the longest line permanently,
+// which stops the button next to it from moving while the lines rotate.
+.act-info-message-container {
+    display: grid;
+    max-width: 100%;
+    text-align: center;
+
+    .act-info-message {
+        // Longhands on purpose: Sass reads the slash in `grid-area: 1 / 1`
+        // as a division and compiles it to `grid-area: 1`.
+        grid-row: 1;
+        grid-column: 1;
+        opacity: 0;
+        transition: opacity $act-information-bar-fade-duration ease;
+
+        &.is-active {
+            opacity: 1;
+        }
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .act-info-message-container .act-info-message {
+        transition: none;
     }
 }
 

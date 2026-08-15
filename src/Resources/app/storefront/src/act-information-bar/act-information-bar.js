@@ -3,8 +3,10 @@ const Plugin = window.PluginBaseClass;
 export default class ActInformationBar extends Plugin {
     static options = {
         messageContainerSelector: '.act-info-message-container',
-        fadeInDuration: 500,
-        fadeOutDuration: 500
+        lineClass: 'act-info-message',
+        activeClass: 'is-active',
+        // Keep in sync with $act-information-bar-fade-duration in base.scss
+        fadeDuration: 500
     };
 
     init() {
@@ -18,47 +20,51 @@ export default class ActInformationBar extends Plugin {
         this.lines = this.message.split('\n').filter(line => line.trim() !== '');
         this.currentLineIndex = 0;
 
-        if (this.lines.length === 1) {
-            // Nur eine Zeile: dauerhaft anzeigen, keine Animation
-            const messageElement = document.createElement('div');
-            messageElement.textContent = this.lines[0];
-            messageElement.style.opacity = '1';
-            this.messageContainer.innerHTML = '';
-            this.messageContainer.appendChild(messageElement);
+        if (this.lines.length === 0) {
             return;
         }
 
+        this.renderLines();
+
         if (this.lines.length > 1) {
-            this.showNextLine();
+            this.timeout = setTimeout(() => this.showNextLine(), this.duration);
         }
     }
 
-    showNextLine() {
-        const line = this.lines[this.currentLineIndex];
-        const messageElement = document.createElement('div');
-        messageElement.textContent = line;
-        messageElement.style.opacity = '0';
-        messageElement.style.transition = `opacity ${this.options.fadeInDuration}ms`;
-
-        // Clear container and add new line
+    /**
+     * Render every line once. They are stacked on top of each other by CSS, so
+     * the container keeps the width of the longest line and neighbouring
+     * elements (the button) do not move while the lines rotate.
+     */
+    renderLines() {
         this.messageContainer.innerHTML = '';
-        this.messageContainer.appendChild(messageElement);
 
-        // Fade in
-        setTimeout(() => {
-            messageElement.style.opacity = '1';
-        }, 50);
+        this.lineElements = this.lines.map((line, index) => {
+            const lineElement = document.createElement('div');
+            lineElement.className = this.options.lineClass;
+            lineElement.textContent = line;
+            this.messageContainer.appendChild(lineElement);
+            this.setLineActive(lineElement, index === 0);
 
-        // Start fade out
-        setTimeout(() => {
-            messageElement.style.opacity = '0';
+            return lineElement;
+        });
+    }
 
-            // After fade out, show next line
-            setTimeout(() => {
-                this.currentLineIndex = (this.currentLineIndex + 1) % this.lines.length;
-                this.showNextLine();
-            }, this.options.fadeOutDuration);
+    setLineActive(lineElement, active) {
+        lineElement.classList.toggle(this.options.activeClass, active);
+        // Hidden lines stay in the DOM for the width, but screen readers should
+        // only ever announce the line that is currently visible.
+        lineElement.setAttribute('aria-hidden', active ? 'false' : 'true');
+    }
 
-        }, this.duration);
+    showNextLine() {
+        this.setLineActive(this.lineElements[this.currentLineIndex], false);
+
+        this.timeout = setTimeout(() => {
+            this.currentLineIndex = (this.currentLineIndex + 1) % this.lines.length;
+            this.setLineActive(this.lineElements[this.currentLineIndex], true);
+
+            this.timeout = setTimeout(() => this.showNextLine(), this.duration);
+        }, this.options.fadeDuration);
     }
 }
