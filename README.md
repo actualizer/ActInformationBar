@@ -4,17 +4,24 @@ A Shopware 6 plugin that displays a customizable, time-controlled information ba
 
 ## Features
 
+- Multiple information bars per sales channel, each with its own schedule
+- A bar without a period runs permanently and is superseded by scheduled bars inside their window
 - Messages maintainable per sales channel **and** language
-- Dedicated admin page under Content → Information bar with a language and sales channel switch
-- Time-controlled display with start and end dates
+- Dedicated admin pages under Content → Information bar: a list, a detail page per bar and a
+  defaults page
+- Time-controlled display with start and end dates, evaluated against a configurable timezone
 - Rotating messages with smooth fade transitions (one line per rotation)
 - Centered layout that keeps the button in place while the lines change
-- Customizable appearance (colors, fonts, padding)
+- Customizable appearance per bar (colors, fonts, padding)
+- Colours are applied as CSS custom properties, so `theme:compile` is no longer needed after a
+  colour change
 - Optional call-to-action button
 - Full-width or container layout options
 - Responsive design
 - AJAX request awareness (no display on AJAX calls)
 - Accessibility: hidden lines are excluded from screen readers, new-window links are announced as such, and the fade respects reduced-motion preferences
+- Bars can be duplicated
+- ACL privileges (`act_information_bar` with viewer/editor/creator/deleter roles)
 - Multi-language admin interface (German & English)
 - Compatible with Shopware 6.7
 
@@ -44,90 +51,84 @@ bin/console cache:clear
    bin/console cache:clear
    ```
 
-### Updating from 1.3.x
+### Updating
 
-Nothing has to be re-entered. On update the plugin creates its own tables and copies the
-existing message and button texts out of the plugin configuration into them. The storefront
-keeps showing the same texts; they are now editable under Content → Information bar.
+Nothing has to be re-entered. On update, all settings that used to live in the plugin
+configuration (appearance, timing, texts) are copied into the bar itself. The storefront keeps
+showing the same bar with the same texts, colors and schedule; everything is now maintained
+under Content → Information bar, and the plugin configuration only shows an info banner.
+
+If a shop overrode one of the plugin's Sass variables (`$act-information-bar-*`) in its own
+theme, that override is superseded by the value configured on the bar from 1.5.0 onward. The
+variables remain in place as fallbacks for empty values.
 
 ## Configuration
 
-Settings live in two places, because texts are translatable and appearance is not.
-
-### Texts — Content → Information bar
+Everything is maintained under Content → Information bar. The plugin configuration
+(Settings → System → Plugins → Actualize: Time-controlled Information Bar) only shows an info
+banner; it no longer holds any settings.
 
 1. Go to Admin Panel → Content → Information bar
-2. Pick the sales channel (or leave it on "All Sales Channels") and the language
-3. Edit the texts and save
+2. The list shows every bar across all sales channels; use "Add bar" to create a new one or open
+   an existing one
+3. Pick the language via the language switch on the detail page to edit that language's texts
+4. Edit the fields and save
 
-This page maintains message, button text, button URL and button title. Each combination of
-sales channel and language holds its own texts.
+Each bar belongs to one sales channel (or "All Sales Channels") and can have its own schedule
+and appearance. A bar without a start and end date runs permanently; a bar with a schedule
+supersedes the permanent bar of the same sales channel while its window is active and hands
+display back to it afterwards. Among overlapping scheduled bars, the one with the later start
+date wins. A bar can be duplicated from the list's context menu; the copy's start and end dates
+are cleared so it does not immediately compete with the original.
 
-The page also carries the appearance settings of the selected sales channel. They are the very
-same values as in the plugin configuration — editing them in either place writes to the same
-setting. Because the page has a language switch, it is worth being explicit: switching the
-language does **not** change these values, and a banner on the card says so. They sit here in
-preparation for the planned 1.5.0, which is to allow several bars per sales channel; appearance
-then becomes a property of the individual bar and belongs next to its texts. Until then, use
-whichever of the two places you prefer.
-
-### Appearance — Extensions → Config
-
-1. Go to Admin Panel → Settings → System → Plugins
-2. Find "Actualize: Time-controlled Information Bar" and click on the three dots
-3. Click "Config" to access plugin settings
-
-Colors, spacing, timing and the button target are stored per sales channel and are shared by
-all its languages.
+When saving a bar, the detail page warns (without blocking the save) if the end date is not
+after the start date, or if a start or end date falls on a day when the configured timezone's
+clock changes.
 
 ### Configuration Options
 
-#### Texts (Content → Information bar)
+#### Bars
+
+- **Name**: Internal name shown in the list, not displayed in the storefront
+- **Active**: Enable/disable the bar
+- **Sales Channel**: The sales channel the bar applies to, or "All Sales Channels"
+- **Start Date / End Date**: The bar's schedule, evaluated against the configured timezone (see
+  Defaults below). Leave both empty for permanent display
 - **Message**: The text to display, one line per rotation (plain text - HTML is not rendered)
-- **Button Text**: Text displayed on button
-- **Button URL**: Link destination
-- **Button Title**: Tooltip text on hover
-
-If a language has no text of its own, the plugin falls back to the default language of the
-sales channel, then to the system default language, and only then to the global record — in
-that order. An empty message in one language therefore never makes the bar disappear.
-
-The message decides: the first record and language with a non-empty message supplies all four
-texts. Filling in only a button text while leaving the message of that language empty means
-the whole language is skipped and the button text is never shown.
-
-The remaining groups belong to the plugin configuration and are shared by all languages of
-the sales channel.
-
-#### General Settings
-- **Active**: Enable/disable the information bar
+- **Button Text**, **Button URL**, **Button Title**: Optional call-to-action button; it is only
+  rendered when both text and URL are set
 - **Full Width**: Display bar across full browser width or within container
-
-#### Message Settings
 - **Display Duration**: How long each message iteration displays (in seconds)
-- **Font Size**: Text size in pixels (default: 14px)
-
-#### Timing Control
-- **Start Date**: When to start showing the bar (optional)
-- **End Date**: When to stop showing the bar (optional)
-- Leave both empty for permanent display
-
-#### Styling
-- **Text Color**: Message text color (hex value)
-- **Background Color**: Bar background color (hex value)
-- **Padding Top**: Top padding in pixels (default: 15px)
-- **Padding Bottom**: Bottom padding in pixels (default: 15px)
-
-#### Call-to-Action Button
-- **Show Button**: Enable/disable CTA button (the button is only rendered when both text and URL are set — both are maintained under Content → Information bar)
+- **Text Color**, **Background Color**: Bar colors (hex values)
+- **Padding Top**, **Padding Bottom**: Padding in pixels
+- **Font Size**: Text size in pixels
+- **Show Button**: Enable/disable the CTA button
 - **Button Target**: Link target (_self, _blank). With `_blank` the link carries `rel="noopener noreferrer"` and a visually hidden "opens in a new window" hint for screen readers
-- **Button Text Color**: Button text color
-- **Button Text Color (Hover)**: Button text color on hover
-- **Button Border Color**: Button border color
-- **Button Border Color (Hover)**: Button border color on hover
+- **Button Text Color**, **Button Text Color (Hover)**: Button text color
+- **Button Border Color**, **Button Border Color (Hover)**: Button border color
 - **Button Border Width**: Border thickness in pixels
-- **Button Background Color**: Button background color
-- **Button Background Color (Hover)**: Button background color on hover
+- **Button Background Color**, **Button Background Color (Hover)**: Button background color
+
+Texts are translatable per language: if a language has no text of its own, the plugin falls
+back to the default language of the sales channel, then to the system default language, and
+only then to the global record — in that order. An empty message in one language therefore
+never makes the bar disappear. The message decides: the first record and language with a
+non-empty message supplies all four texts. Filling in only a button text while leaving the
+message of that language empty means the whole language is skipped and the button text is
+never shown. Appearance and schedule are not translatable — they belong to the bar, not to a
+language.
+
+#### Defaults
+
+The defaults page (Content → Information bar → Defaults) holds the values that are
+copied into a bar when it is created — the same appearance fields listed above, plus the
+timezone. It does not affect existing bars; changing a default only changes what a newly
+created bar starts out with.
+
+The timezone setting is the shop's timezone for evaluating start and end dates, independent of
+the sales channel and independent of any individual admin user's profile timezone. If left
+unset, it falls back to the server timezone (PHP's `date.timezone` setting, then the `TZ`
+environment variable), and only uses `UTC` if neither yields a valid identifier.
 
 ## How it works
 
@@ -155,9 +156,9 @@ the sales channel.
 - `GenericPageLoadedEvent` - Injects information bar data into page
 
 ### Data Storage
-- Texts: `act_information_bar` with translations in `act_information_bar_translation`, one
-  record per sales channel plus a global record used as fallback
-- Appearance: Shopware's `system_config`, per sales channel
+- `act_information_bar` with translations in `act_information_bar_translation`, one row per bar
+  plus its texts per language
+- Appearance and schedule are columns on the bar itself, not `system_config`
 
 ### Template Structure
 - Extends `@Storefront/storefront/base.html.twig`
@@ -180,14 +181,14 @@ bin/console theme:compile
 
 ### Debugging
 - Check browser console for JavaScript errors
-- Verify date settings in plugin configuration
+- Verify date settings on the bar
 - Test with different message lengths
 - Monitor animation performance in DevTools
 
 ## Usage Examples
 
 The examples list message and button texts together with the appearance values they go with.
-Texts are maintained under Content → Information bar, everything else in the plugin configuration.
+All of it is maintained on a bar under Content → Information bar.
 
 ### Simple Announcement
 ```
@@ -256,16 +257,25 @@ button keeps its position while the lines rotate.
 
 ## Known Limitations
 
-- One information bar per sales channel
-- **Appearance is not translatable.** Colors, spacing and timing are compiled into the theme
-  stylesheet, which Shopware builds per theme and sales channel, not per language. Every
-  language of a sales channel therefore shares one appearance; only the texts differ. The
-  appearance fields on the Content → Information bar page are unaffected by its language
-  switch for that reason. They are placed there for the planned 1.5.0, where several bars per
-  sales channel are to get their own appearance.
+- **Appearance is not translatable.** Every language of a bar therefore shares one appearance;
+  only the texts differ. The appearance fields on the detail page are unaffected by the
+  language switch for that reason.
 - Messages are plain text; HTML markup is not rendered
 - Very long messages may impact performance
-- Date/time based on server timezone
+- Date/time evaluated against the timezone configured on the defaults page; if unset, it falls
+  back to the server timezone and only uses `UTC` as a last resort
+- **A colour change is not instant on a live shop.** The bar sits in the storefront's main
+  document cache, not in the separately cached header fragment, and saving a bar does not
+  invalidate it. The new colour appears once the HTTP cache TTL expires, or right away after
+  `bin/console cache:pool:clear cache.http`. No `theme:compile` is needed either way — that is
+  the point of serving colours as CSS custom properties.
+- **Daylight saving transitions need care.** On a spring forward day one wall clock hour does
+  not exist (02:00–02:59 in `Europe/Berlin`), and a start or end time inside it is silently
+  moved forward by an hour. A window spanning exactly that missing hour collapses to zero
+  length and the bar never appears. On an autumn day the same hour exists twice and is
+  ambiguous. The detail page warns at save time when a date falls on such a day, and separately
+  when the end date is not after the start date; both warnings are advisory and saving
+  proceeds. Schedule around a transition by picking a time outside the affected hour.
 
 ## Support
 

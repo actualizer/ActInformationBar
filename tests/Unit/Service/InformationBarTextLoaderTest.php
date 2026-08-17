@@ -6,6 +6,8 @@ use Act\InformationBar\Content\InformationBar\Aggregate\InformationBarTranslatio
 use Act\InformationBar\Content\InformationBar\Aggregate\InformationBarTranslation\InformationBarTranslationEntity;
 use Act\InformationBar\Content\InformationBar\InformationBarCollection;
 use Act\InformationBar\Content\InformationBar\InformationBarEntity;
+use Act\InformationBar\Service\BarDefaultsProvider;
+use Act\InformationBar\Service\BarScheduleResolver;
 use Act\InformationBar\Service\InformationBarTextLoader;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -15,6 +17,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelEntity;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
+use Symfony\Component\Clock\MockClock;
 
 class InformationBarTextLoaderTest extends TestCase
 {
@@ -29,27 +33,30 @@ class InformationBarTextLoaderTest extends TestCase
             self::DEFAULT_LANGUAGE_ID => 'Deutsch',
         ]);
 
-        $text = $this->loader()->resolve([$bar], $this->languageCandidates());
+        $result = $this->loader()->resolveWinner([$bar], $this->languageCandidates());
 
-        self::assertSame('English', $text->message);
+        self::assertNotNull($result);
+        self::assertSame('English', $result->text->message);
     }
 
     public function testFallsBackToSalesChannelDefaultLanguage(): void
     {
         $bar = $this->bar(self::SALES_CHANNEL_ID, [self::DEFAULT_LANGUAGE_ID => 'Deutsch']);
 
-        $text = $this->loader()->resolve([$bar], $this->languageCandidates());
+        $result = $this->loader()->resolveWinner([$bar], $this->languageCandidates());
 
-        self::assertSame('Deutsch', $text->message);
+        self::assertNotNull($result);
+        self::assertSame('Deutsch', $result->text->message);
     }
 
     public function testFallsBackToSystemLanguageWhenNeitherCurrentNorSalesChannelLanguagePresent(): void
     {
         $bar = $this->bar(self::SALES_CHANNEL_ID, [Defaults::LANGUAGE_SYSTEM => 'System']);
 
-        $text = $this->loader()->resolve([$bar], $this->languageCandidates());
+        $result = $this->loader()->resolveWinner([$bar], $this->languageCandidates());
 
-        self::assertSame('System', $text->message);
+        self::assertNotNull($result);
+        self::assertSame('System', $result->text->message);
     }
 
     /**
@@ -68,9 +75,10 @@ class InformationBarTextLoaderTest extends TestCase
             Defaults::LANGUAGE_SYSTEM => 'System',
         ]);
 
-        $text = $this->loader()->resolve([$bar], $this->languageCandidates());
+        $result = $this->loader()->resolveWinner([$bar], $this->languageCandidates());
 
-        self::assertSame('Deutsch', $text->message);
+        self::assertNotNull($result);
+        self::assertSame('Deutsch', $result->text->message);
     }
 
     public function testPrefersSalesChannelSpecificRecordOverGlobalOne(): void
@@ -78,37 +86,35 @@ class InformationBarTextLoaderTest extends TestCase
         $global = $this->bar(null, [self::CURRENT_LANGUAGE_ID => 'Global']);
         $specific = $this->bar(self::SALES_CHANNEL_ID, [self::CURRENT_LANGUAGE_ID => 'Spezifisch']);
 
-        $picked = $this->loader()->pickEntities(new InformationBarCollection([$global, $specific]), self::SALES_CHANNEL_ID);
-        $text = $this->loader()->resolve($picked, $this->languageCandidates());
+        // Candidate order (specific before global) is BarScheduleResolver's responsibility
+        // as of Task 3; here it is supplied directly to isolate resolveWinner's own logic.
+        $result = $this->loader()->resolveWinner([$specific, $global], $this->languageCandidates());
 
-        self::assertSame('Spezifisch', $text->message);
+        self::assertNotNull($result);
+        self::assertSame('Spezifisch', $result->text->message);
     }
 
-    public function testPickEntitiesReturnsOnlyGlobalRecordWhenNoSalesChannelSpecificRecordExists(): void
+    public function testFallsThroughToNextCandidateWhenPreferredBarHasNoText(): void
     {
-        $global = $this->bar(null, [self::CURRENT_LANGUAGE_ID => 'Global']);
+        $channelBar = $this->bar(self::SALES_CHANNEL_ID, []);
+        $channelBar->setName('Kanal ohne Text');
 
-        $picked = $this->loader()->pickEntities(new InformationBarCollection([$global]), self::SALES_CHANNEL_ID);
+        $globalBar = $this->bar(null, [Defaults::LANGUAGE_SYSTEM => 'Global']);
+        $globalBar->setName('Global');
 
-        self::assertSame([$global], $picked);
+        $result = $this->loader()->resolveWinner(
+            [$channelBar, $globalBar],
+            $this->languageCandidates()
+        );
+
+        self::assertNotNull($result);
+        self::assertSame('Global', $result->text->message);
+        self::assertSame('Global', $result->bar->getName());
     }
 
-    public function testFallsBackToGlobalEntityWhenSalesChannelSpecificHasNoUsableTranslation(): void
+    public function testReturnsNullWhenNothingMatches(): void
     {
-        $specific = $this->bar(self::SALES_CHANNEL_ID, []);
-        $global = $this->bar(null, [self::CURRENT_LANGUAGE_ID => 'Global']);
-
-        $picked = $this->loader()->pickEntities(new InformationBarCollection([$specific, $global]), self::SALES_CHANNEL_ID);
-        $text = $this->loader()->resolve($picked, $this->languageCandidates());
-
-        self::assertSame('Global', $text->message);
-    }
-
-    public function testReturnsEmptyTextWhenNothingMatches(): void
-    {
-        $text = $this->loader()->resolve([], $this->languageCandidates());
-
-        self::assertTrue($text->isEmpty());
+        self::assertNull($this->loader()->resolveWinner([], $this->languageCandidates()));
     }
 
     /**
@@ -117,25 +123,44 @@ class InformationBarTextLoaderTest extends TestCase
      * candidate); the global record has one in the current language (the
      * highest-priority language candidate). A correct implementation
      * exhausts every language candidate on the specific record first and
-     * returns its match. This test fails if the entity candidate order is
-     * swapped (specific vs. global) AND fails if the loops are nested the
-     * wrong way round (language-outer/entity-inner), because either mistake
-     * would surface the global record's current-language match instead.
+     * returns its match. This test fails if the loops are nested the wrong
+     * way round (language-outer/entity-inner), because that mistake would
+     * surface the global record's current-language match instead.
      */
-    public function testTriesAllLanguagesOnSalesChannelSpecificEntityBeforeFallingBackToGlobalEntity(): void
+    public function testTriesAllLanguagesOnFirstCandidateBeforeFallingBackToNext(): void
     {
         $specific = $this->bar(self::SALES_CHANNEL_ID, [Defaults::LANGUAGE_SYSTEM => 'Specific-System']);
         $global = $this->bar(null, [self::CURRENT_LANGUAGE_ID => 'Global-Current']);
 
-        $picked = $this->loader()->pickEntities(new InformationBarCollection([$global, $specific]), self::SALES_CHANNEL_ID);
-        $text = $this->loader()->resolve($picked, $this->languageCandidates());
+        $result = $this->loader()->resolveWinner([$specific, $global], $this->languageCandidates());
 
-        self::assertSame('Specific-System', $text->message);
+        self::assertNotNull($result);
+        self::assertSame('Specific-System', $result->text->message);
+    }
+
+    public function testWinnerCarriesTextAndStylingFromTheSameBar(): void
+    {
+        $bar = $this->bar(self::SALES_CHANNEL_ID, [Defaults::LANGUAGE_SYSTEM => 'Text']);
+        $bar->setName('Kanal');
+        $bar->setBackgroundColor('#c00000');
+
+        $result = $this->loader()->resolveWinner([$bar], $this->languageCandidates());
+
+        self::assertNotNull($result);
+        self::assertSame('Text', $result->text->message);
+        self::assertSame('#c00000', $result->bar->getBackgroundColor());
+    }
+
+    public function testReturnsNullWhenNoCandidateHasAnyText(): void
+    {
+        $bar = $this->bar(self::SALES_CHANNEL_ID, []);
+
+        self::assertNull($this->loader()->resolveWinner([$bar], $this->languageCandidates()));
     }
 
     /**
-     * Covers load() itself, not just resolve()/pickEntities(): this is where
-     * the candidate order [current language, sales channel default language,
+     * Covers load() itself, not just resolveWinner(): this is where the
+     * candidate order [current language, sales channel default language,
      * system language] is actually assembled from a SalesChannelContext, and
      * exactly this assembly regressed once already (Fix-Runde 1). The record
      * has no translation for the current language, one for the sales channel
@@ -153,7 +178,10 @@ class InformationBarTextLoaderTest extends TestCase
         ]);
 
         $loader = new InformationBarTextLoader(
-            new StaticEntityRepository([new InformationBarCollection([$bar])])
+            new StaticEntityRepository([new InformationBarCollection([$bar])]),
+            new BarScheduleResolver(),
+            new MockClock(),
+            new BarDefaultsProvider(new StaticSystemConfigService())
         );
 
         $salesChannel = new SalesChannelEntity();
@@ -165,9 +193,58 @@ class InformationBarTextLoaderTest extends TestCase
             salesChannel: $salesChannel,
         );
 
-        $text = $loader->load($salesChannelContext);
+        $result = $loader->load($salesChannelContext);
 
-        self::assertSame('Deutsch', $text->message);
+        self::assertNotNull($result);
+        self::assertSame('Deutsch', $result->text->message);
+    }
+
+    /**
+     * Note on scope: BarScheduleResolver::covers() compares \DateTimeInterface values,
+     * and PHP's comparison operators on those always compare the absolute instant, not
+     * the display timezone - so the zone conversion below can never change which bar
+     * wins (verified empirically; see audit-fixes-report.md). What CAN regress is the
+     * conversion itself being silently dropped (call getTimezone(), discard the result,
+     * keep the clock's own UTC zone) - that is what this test guards, by inspecting the
+     * $now instance that actually reaches the resolver.
+     */
+    public function testLoadPassesNowConvertedToTheConfiguredShopTimezoneToTheScheduleResolver(): void
+    {
+        $bar = $this->bar(self::SALES_CHANNEL_ID, [Defaults::LANGUAGE_SYSTEM => 'Text']);
+
+        $spyResolver = new class extends BarScheduleResolver {
+            public ?\DateTimeInterface $capturedNow = null;
+
+            public function pickCandidates(array $bars, ?string $salesChannelId, \DateTimeInterface $now): array
+            {
+                $this->capturedNow = $now;
+
+                return parent::pickCandidates($bars, $salesChannelId, $now);
+            }
+        };
+
+        $loader = new InformationBarTextLoader(
+            new StaticEntityRepository([new InformationBarCollection([$bar])]),
+            $spyResolver,
+            new MockClock(),
+            new BarDefaultsProvider(new StaticSystemConfigService([
+                BarDefaultsProvider::TIMEZONE_KEY => 'Asia/Tokyo',
+            ]))
+        );
+
+        $salesChannel = new SalesChannelEntity();
+        $salesChannel->setId(self::SALES_CHANNEL_ID);
+        $salesChannel->setLanguageId(self::DEFAULT_LANGUAGE_ID);
+
+        $salesChannelContext = Generator::generateSalesChannelContext(
+            baseContext: new Context(new SystemSource(), [], Defaults::CURRENCY, [self::CURRENT_LANGUAGE_ID]),
+            salesChannel: $salesChannel,
+        );
+
+        $loader->load($salesChannelContext);
+
+        self::assertNotNull($spyResolver->capturedNow);
+        self::assertSame('Asia/Tokyo', $spyResolver->capturedNow->getTimezone()->getName());
     }
 
     /**
@@ -204,6 +281,11 @@ class InformationBarTextLoaderTest extends TestCase
 
     private function loader(): InformationBarTextLoader
     {
-        return new InformationBarTextLoader(new StaticEntityRepository([new InformationBarCollection([])]));
+        return new InformationBarTextLoader(
+            new StaticEntityRepository([new InformationBarCollection([])]),
+            new BarScheduleResolver(),
+            new MockClock(),
+            new BarDefaultsProvider(new StaticSystemConfigService())
+        );
     }
 }

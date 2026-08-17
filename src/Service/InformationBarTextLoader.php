@@ -4,6 +4,7 @@ namespace Act\InformationBar\Service;
 
 use Act\InformationBar\Content\InformationBar\InformationBarCollection;
 use Act\InformationBar\Content\InformationBar\InformationBarEntity;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -21,21 +22,25 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
  * text (not tied to any sales channel) is stored under that language whenever
  * it has no translation of its own for the current or sales channel language.
  *
- * Resolution order: for each entity candidate (sales-channel-specific record
- * first, global record second) try every language candidate (current language,
- * sales channel default language, system language) in order; the first
- * non-empty message wins.
+ * Candidate ordering itself is delegated to BarScheduleResolver; this class only
+ * picks the first candidate with a usable translation, trying every language
+ * candidate (current language, sales channel default language, system language)
+ * in order before moving on to the next bar.
  */
 class InformationBarTextLoader
 {
     /**
      * @param EntityRepository<InformationBarCollection> $informationBarRepository
      */
-    public function __construct(private readonly EntityRepository $informationBarRepository)
-    {
+    public function __construct(
+        private readonly EntityRepository $informationBarRepository,
+        private readonly BarScheduleResolver $scheduleResolver,
+        private readonly ClockInterface $clock,
+        private readonly BarDefaultsProvider $defaultsProvider,
+    ) {
     }
 
-    public function load(SalesChannelContext $context): InformationBarText
+    public function load(SalesChannelContext $context): ?InformationBarResult
     {
         $salesChannelId = $context->getSalesChannelId();
 
@@ -49,57 +54,41 @@ class InformationBarTextLoader
         /** @var InformationBarCollection $entities */
         $entities = $this->informationBarRepository->search($criteria, $context->getContext())->getEntities();
 
-        return $this->resolve(
-            $this->pickEntities($entities, $salesChannelId),
-            [
-                $context->getLanguageId(),
-                $context->getSalesChannel()->getLanguageId(),
-                Defaults::LANGUAGE_SYSTEM,
-            ]
+        // Timezone is carried along for traceability, but has no effect on the result:
+        // DateTimeInterface comparisons in BarScheduleResolver are instant-based, so this
+        // setTimezone() call cannot change which bar wins - only instant-accurate storage does.
+        $now = \DateTimeImmutable::createFromInterface($this->clock->now())
+            ->setTimezone(new \DateTimeZone($this->defaultsProvider->getTimezone()));
+
+        $candidates = $this->scheduleResolver->pickCandidates(
+            array_values($entities->getElements()),
+            $salesChannelId,
+            $now
         );
+
+        return $this->resolveWinner($candidates, [
+            $context->getLanguageId(),
+            $context->getSalesChannel()->getLanguageId(),
+            Defaults::LANGUAGE_SYSTEM,
+        ]);
     }
 
     /**
-     * Orders the entity candidates: the record bound to the sales channel is
-     * tried before the global one (salesChannelId === null). Either may be
-     * absent from the search result.
+     * Tries every candidate bar against every language candidate, both in
+     * priority order (bar candidates outer, language candidates inner); the
+     * first non-empty message wins. Only if a whole bar yields no usable
+     * translation for any language does the next bar get tried - collapsing
+     * this to the first candidate only reintroduces the defect fixed in
+     * 1.4.0, where a sales-channel bar without a translation hid the bar
+     * entirely instead of falling through to the global one.
      *
-     * @return list<InformationBarEntity>
-     */
-    public function pickEntities(InformationBarCollection $entities, string $salesChannelId): array
-    {
-        $candidates = [];
-
-        foreach ($entities as $entity) {
-            if ($entity->getSalesChannelId() === $salesChannelId) {
-                $candidates[] = $entity;
-                break;
-            }
-        }
-
-        foreach ($entities as $entity) {
-            if ($entity->getSalesChannelId() === null) {
-                $candidates[] = $entity;
-                break;
-            }
-        }
-
-        return $candidates;
-    }
-
-    /**
-     * Tries every entity candidate against every language candidate, both in
-     * priority order (entity candidates outer, language candidates inner);
-     * the first non-empty message wins. Only if a whole entity yields no
-     * usable translation for any language does the next entity get tried.
-     *
-     * @param list<InformationBarEntity> $entities
+     * @param list<InformationBarEntity> $candidates
      * @param list<string|null> $languageIds
      */
-    public function resolve(array $entities, array $languageIds): InformationBarText
+    public function resolveWinner(array $candidates, array $languageIds): ?InformationBarResult
     {
-        foreach ($entities as $entity) {
-            $translations = $entity->getTranslations();
+        foreach ($candidates as $bar) {
+            $translations = $bar->getTranslations();
 
             if ($translations === null) {
                 continue;
@@ -121,16 +110,16 @@ class InformationBarTextLoader
                         continue;
                     }
 
-                    return new InformationBarText(
+                    return new InformationBarResult($bar, new InformationBarText(
                         $message,
                         $translation->getButtonText(),
                         $translation->getButtonTitle(),
                         $translation->getButtonUrl(),
-                    );
+                    ));
                 }
             }
         }
 
-        return new InformationBarText();
+        return null;
     }
 }

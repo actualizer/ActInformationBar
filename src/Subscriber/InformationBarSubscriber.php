@@ -2,107 +2,98 @@
 
 namespace Act\InformationBar\Subscriber;
 
+use Act\InformationBar\Content\InformationBar\InformationBarEntity;
 use Act\InformationBar\Service\InformationBarTextLoader;
-use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Storefront\Page\GenericPageLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Shopware\Core\Framework\Struct\ArrayStruct;
 
 class InformationBarSubscriber implements EventSubscriberInterface
 {
-    private SystemConfigService $systemConfigService;
-
-    public function __construct(
-        SystemConfigService $systemConfigService,
-        private readonly InformationBarTextLoader $textLoader
-    ) {
-        $this->systemConfigService = $systemConfigService;
+    public function __construct(private readonly InformationBarTextLoader $textLoader)
+    {
     }
 
     public static function getSubscribedEvents(): array
     {
         return [
-            GenericPageLoadedEvent::class => 'onPageLoaded'
+            GenericPageLoadedEvent::class => 'onPageLoaded',
         ];
     }
 
     public function onPageLoaded(GenericPageLoadedEvent $event): void
     {
-        if ($this->isAjaxRequest($event)) {
+        if ($event->getRequest()->isXmlHttpRequest()) {
             return;
         }
 
-        $salesChannelId = $event->getSalesChannelContext()->getSalesChannelId();
-        $config = $this->getConfigValues($salesChannelId);
-        $now = new \DateTime();
-        $start = $this->getDateTime($config['startDate']);
-        $end = $this->getDateTime($config['endDate']);
+        $result = $this->textLoader->load($event->getSalesChannelContext());
 
-        $show = $this->shouldShowBar($config['isActive'], $now, $start, $end);
+        if ($result === null) {
+            $event->getPage()->addExtension('actInformationBar', new ArrayStruct(['show' => false]));
 
-        $texts = $this->textLoader->load($event->getSalesChannelContext());
+            return;
+        }
 
-        $informationBarData = new ArrayStruct(array_merge($config, [
-            'show' => $show && !$texts->isEmpty(),
-            'message' => $texts->message ?? '',
-            'buttonText' => $texts->buttonText ?? '',
-            'buttonTitle' => $texts->buttonTitle ?? '',
-            'buttonUrl' => $texts->buttonUrl ?? '',
+        $bar = $result->bar;
+
+        $event->getPage()->addExtension('actInformationBar', new ArrayStruct([
+            'show' => true,
+            'message' => $result->text->message ?? '',
+            'buttonText' => $result->text->buttonText ?? '',
+            'buttonTitle' => $result->text->buttonTitle ?? '',
+            'buttonUrl' => $result->text->buttonUrl ?? '',
+            'displayDuration' => $bar->getDisplayDuration(),
+            'fullWidth' => $bar->getFullWidth(),
+            'showButton' => $bar->getShowButton(),
+            'buttonTarget' => $bar->getButtonTarget(),
+            'style' => $this->buildStyle($bar),
         ]));
-        $event->getPage()->addExtension('actInformationBar', $informationBarData);
-    }
-
-    private function isAjaxRequest(GenericPageLoadedEvent $event): bool
-    {
-        return $event->getRequest()->isXmlHttpRequest();
     }
 
     /**
-     * @return array<string, mixed>
+     * Builds the wrapper's inline style attribute from entity values so a colour or
+     * spacing change is visible without recompiling the theme.
      */
-    private function getConfigValues(string $salesChannelId): array
+    private function buildStyle(InformationBarEntity $bar): string
     {
-        $config = $this->systemConfigService->get('ActInformationBar.config', $salesChannelId) ?? [];
-
-        return [
-            'isActive' => $config['isActive'] ?? true,
-            'fullWidth' => $config['fullWidth'] ?? false,
-            'displayDuration' => $config['displayDuration'] ?? 3,
-            'startDate' => $config['startDate'] ?? '',
-            'endDate' => $config['endDate'] ?? '',
-            'textColor' => $config['textColor'] ?? '',
-            'backgroundColor' => $config['backgroundColor'] ?? '',
-            'paddingTop' => $config['paddingTop'] ?? 15,
-            'paddingBottom' => $config['paddingBottom'] ?? 15,
-            'fontSize' => $config['fontSize'] ?? 14,
-            'showButton' => $config['showButton'] ?? false,
-            'buttonTarget' => $config['buttonTarget'] ?? '_self',
-            'buttonTextColor' => $config['buttonTextColor'] ?? '',
-            'buttonTextColorHover' => $config['buttonTextColorHover'] ?? '',
-            'buttonBorderColor' => $config['buttonBorderColor'] ?? '',
-            'buttonBorderColorHover' => $config['buttonBorderColorHover'] ?? '',
-            'buttonBorderWidth' => $config['buttonBorderWidth'] ?? 1,
-            'buttonBackgroundColor' => $config['buttonBackgroundColor'] ?? '',
-            'buttonBackgroundColorHover' => $config['buttonBackgroundColorHover'] ?? '',
+        $declarations = [
+            '--act-bar-text' => $bar->getTextColor(),
+            '--act-bar-bg' => $bar->getBackgroundColor(),
+            '--act-bar-padding-top' => $bar->getPaddingTop(),
+            '--act-bar-padding-bottom' => $bar->getPaddingBottom(),
+            '--act-bar-font-size' => $bar->getFontSize(),
+            '--act-bar-btn-text' => $bar->getButtonTextColor(),
+            '--act-bar-btn-text-hover' => $bar->getButtonTextColorHover(),
+            '--act-bar-btn-border' => $bar->getButtonBorderColor(),
+            '--act-bar-btn-border-hover' => $bar->getButtonBorderColorHover(),
+            '--act-bar-btn-border-width' => $bar->getButtonBorderWidth(),
+            '--act-bar-btn-bg' => $bar->getButtonBackgroundColor(),
+            '--act-bar-btn-bg-hover' => $bar->getButtonBackgroundColorHover(),
         ];
-    }
 
-    private function getDateTime(?string $date): ?\DateTime
-    {
-        try {
-            return empty($date) ? null : new \DateTime($date);
-        } catch (\Exception $e) {
-            return null;
+        $output = [];
+
+        foreach ($declarations as $property => $value) {
+            if ($value === null || $value === '') {
+                continue;
+            }
+
+            // Reject values that could close the declaration list and inject further CSS
+            // through the unescaped style attribute (see Twig autoescape note in the template).
+            if (str_contains($value, ';') || str_contains($value, '}')) {
+                continue;
+            }
+
+            // Bare numbers (e.g. a pre-migration "14") need an explicit unit now that the
+            // template no longer appends "px" itself.
+            if (is_numeric($value)) {
+                $value .= 'px';
+            }
+
+            $output[] = $property . ': ' . $value;
         }
-    }
 
-    private function shouldShowBar(bool $isActive, \DateTime $now, ?\DateTime $start, ?\DateTime $end): bool
-    {
-        return $isActive && (
-            ($start === null && $end === null) ||
-            ($start === null && $now <= $end) ||
-            ($end === null && $now >= $start) ||
-            ($start !== null && $end !== null && $now >= $start && $now <= $end)
-        );
+        return implode('; ', $output);
     }
 }

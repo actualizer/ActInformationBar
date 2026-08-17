@@ -27,6 +27,8 @@ class InformationBarDefinitionTest extends TestCase
         $repository->create([[
             'id' => $id,
             'salesChannelId' => null,
+            // 'name' became required in Task 2's schema; unrelated to what this test asserts.
+            'name' => 'Systemsprache Bar',
             'translations' => [
                 Defaults::LANGUAGE_SYSTEM => [
                     'message' => 'Systemsprache',
@@ -49,5 +51,40 @@ class InformationBarDefinitionTest extends TestCase
         self::assertSame('/mehr', $entity->getButtonUrl());
         self::assertNotNull($entity->getTranslations());
         self::assertCount(1, $entity->getTranslations());
+    }
+
+    public function testScheduleAndStylingRoundTrip(): void
+    {
+        /** @var EntityRepository $repository */
+        $repository = static::getContainer()->get('act_information_bar.repository');
+        $id = Uuid::randomHex();
+        $context = Context::createCLIContext();
+
+        $repository->create([[
+            'id' => $id,
+            'name' => 'Betriebsurlaub',
+            // Both booleans below are deliberately set to the OPPOSITE of the column/property
+            // default (active default true, showButton default false), so the assertions
+            // fail if the field were dropped from the definition instead of actually written.
+            'active' => false,
+            'startDate' => new \DateTimeImmutable('2026-09-16 00:00:00'),
+            'endDate' => new \DateTimeImmutable('2026-09-30 23:59:59'),
+            'backgroundColor' => '#c00000',
+            'showButton' => true,
+            'displayDuration' => 5,
+            'translations' => [
+                Defaults::LANGUAGE_SYSTEM => ['message' => 'Wir haben Betriebsurlaub'],
+            ],
+        ]], $context);
+
+        $bar = $repository->search(new Criteria([$id]), $context)->getEntities()->first();
+
+        self::assertNotNull($bar);
+        self::assertSame('Betriebsurlaub', $bar->getName());
+        self::assertFalse($bar->getActive());
+        self::assertSame('2026-09-16', $bar->getStartDate()?->format('Y-m-d'));
+        self::assertSame('#c00000', $bar->getBackgroundColor());
+        self::assertTrue($bar->getShowButton());
+        self::assertSame(5, $bar->getDisplayDuration());
     }
 }

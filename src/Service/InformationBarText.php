@@ -14,9 +14,4 @@ final readonly class InformationBarText
         public ?string $buttonUrl = null,
     ) {
     }
-
-    public function isEmpty(): bool
-    {
-        return $this->message === null || $this->message === '';
-    }
 }

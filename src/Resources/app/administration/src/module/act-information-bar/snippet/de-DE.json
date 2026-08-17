@@ -1,4 +1,11 @@
 {
+    "sw-privileges": {
+        "permissions": {
+            "act_information_bar": {
+                "label": "Informationsleisten"
+            }
+        }
+    },
     "actInformationBar": {
         "general": {
             "mainMenuItemGeneral": "Informationsleiste",
@@ -11,7 +18,26 @@
                 "issues": "Probleme oder Feature-Wünsche?"
             }
         },
+        "defaults": {
+            "title": "Vorgaben für neue Leisten",
+            "stylingCardTitle": "Vorlage für die Darstellung",
+            "stylingHint": "Diese Werte werden beim Anlegen einer neuen Leiste kopiert. Bestehende Leisten ändern sich dadurch nicht.",
+            "timezoneCardTitle": "Zeitzone",
+            "timezoneLabel": "Zeitzone",
+            "timezoneHint": "Start- und Endzeiten aller Leisten werden in dieser Zeitzone ausgewertet. Anders als die übrigen Felder gilt sie sofort.",
+            "loadError": "Die Vorgaben konnten nicht geladen werden.",
+            "saveError": "Die Vorgaben konnten nicht gespeichert werden.",
+            "saveSuccess": "Die Vorgaben wurden gespeichert."
+        },
         "detail": {
+            "generalCardTitle": "Allgemein",
+            "nameLabel": "Name",
+            "salesChannelLabel": "Verkaufskanal",
+            "timezoneHint": "Zeiten gelten in der Zeitzone {timezone}",
+            "overlapWarning": "Überschneidet sich mit „{name}“ — dort gewinnt die später startende Leiste.",
+            "invalidWindowWarning": "Mit diesem Zeitraum wird die Leiste nie angezeigt, weil das Enddatum nicht nach dem Startdatum liegt. Bitte prüfen Sie Start- und Enddatum.",
+            "dstMissingHourWarning": "Am {date} wird in der Zeitzone {timezone} die Uhr eine Stunde vorgestellt. Diese Stunde existiert an diesem Tag nicht — bitte prüfen Sie die eingetragene Uhrzeit.",
+            "dstDuplicateHourWarning": "Am {date} wird in der Zeitzone {timezone} die Uhr eine Stunde zurückgestellt. Eine Stunde existiert an diesem Tag doppelt — bitte prüfen Sie die eingetragene Uhrzeit.",
             "contentCardTitle": "Inhalt",
             "messageLabel": "Nachricht (eine Zeile pro Anzeige)",
             "messageHelpText": "Jede Zeile wird nacheinander angezeigt",
@@ -45,11 +71,33 @@
             "fullWidthLabel": "Volle Breite",
             "paddingBottomLabel": "Innenabstand unten (in Pixeln)",
             "paddingTopLabel": "Innenabstand oben (in Pixeln)",
-            "saveConfigError": "Die Darstellungseinstellungen konnten nicht gespeichert werden.",
             "showButtonLabel": "Button anzeigen",
             "startDateLabel": "Startdatum",
-            "textColorLabel": "Textfarbe",
-            "themeCompileHint": "Änderungen an Farben und Abständen werden erst nach einer Theme-Kompilierung sichtbar."
+            "textColorLabel": "Textfarbe"
+        },
+        "list": {
+            "columnName": "Name",
+            "columnSalesChannel": "Verkaufskanal",
+            "columnPeriod": "Zeitraum",
+            "columnStatus": "Status",
+            "statusRunning": "läuft",
+            "statusPlanned": "geplant",
+            "statusExpired": "abgelaufen",
+            "statusInactive": "inaktiv",
+            "statusEvergreen": "läuft",
+            "periodEvergreen": "dauerhaft",
+            "periodFrom": "ab {date}",
+            "periodUntil": "bis {date}",
+            "periodRange": "{from} – {until}",
+            "allSalesChannels": "Alle Verkaufskanäle",
+            "buttonAdd": "Leiste hinzufügen",
+            "buttonDefaults": "Vorgaben",
+            "emptyTitle": "Noch keine Informationsleiste",
+            "emptySubline": "Legen Sie eine Leiste an, um sie im Storefront anzuzeigen.",
+            "loadError": "Die Leisten konnten nicht geladen werden.",
+            "deleteError": "Die Leiste konnte nicht gelöscht werden.",
+            "duplicate": "Duplizieren",
+            "duplicateError": "Die Leiste konnte nicht dupliziert werden."
         }
     }
 }

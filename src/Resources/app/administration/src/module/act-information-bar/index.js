@@ -1,8 +1,7 @@
 import './component/act-information-bar-info';
-import './component/act-information-bar-section-heading';
+import './page/act-information-bar-defaults';
 import './page/act-information-bar-detail';
-
-import './act-information-bar-config.scss';
+import './page/act-information-bar-list';
 
 import deDE from './snippet/de-DE.json';
 import enGB from './snippet/en-GB.json';
@@ -25,8 +24,24 @@ Module.register('act-information-bar', {
 
     routes: {
         index: {
+            component: 'act-information-bar-list',
+            path: 'index',
+            meta: { privilege: 'act_information_bar.viewer' }
+        },
+        detail: {
             component: 'act-information-bar-detail',
-            path: 'index'
+            path: 'detail/:id',
+            meta: { privilege: 'act_information_bar.viewer', parentPath: 'act.information.bar.index' }
+        },
+        create: {
+            component: 'act-information-bar-detail',
+            path: 'create',
+            meta: { privilege: 'act_information_bar.creator', parentPath: 'act.information.bar.index' }
+        },
+        defaults: {
+            component: 'act-information-bar-defaults',
+            path: 'defaults',
+            meta: { privilege: 'act_information_bar.editor', parentPath: 'act.information.bar.index' }
         }
     },
 

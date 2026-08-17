@@ -25,7 +25,7 @@ $act-information-bar-fade-duration: 500ms !default;
 
 // Information Bar styling
 .act-info-bar {
-    font-size: $act-information-bar-font-size;
+    font-size: var(--act-bar-font-size, #{$act-information-bar-font-size});
 
     &-inner {
         display: flex;
@@ -35,18 +35,12 @@ $act-information-bar-fade-duration: 500ms !default;
         gap: $act-information-bar-gap-row $act-information-bar-gap-column;
     }
 
-    &-content {
-        background-color: $act-information-bar-background-color;
-        color: $act-information-bar-text-color;
-        padding-top: $act-information-bar-padding-top;
-        padding-bottom: $act-information-bar-padding-bottom;
-    }
-
+    &-content,
     &-full-width {
-        background-color: $act-information-bar-background-color;
-        color: $act-information-bar-text-color;
-        padding-top: $act-information-bar-padding-top;
-        padding-bottom: $act-information-bar-padding-bottom;
+        background-color: var(--act-bar-bg, #{$act-information-bar-background-color});
+        color: var(--act-bar-text, #{$act-information-bar-text-color});
+        padding-top: var(--act-bar-padding-top, #{$act-information-bar-padding-top});
+        padding-bottom: var(--act-bar-padding-bottom, #{$act-information-bar-padding-bottom});
     }
 }
 
@@ -80,17 +74,17 @@ $act-information-bar-fade-duration: 500ms !default;
 
 // Button styling
 .act-information-bar-button {
-    color: $act-information-bar-button-text-color;
-    border-color: $act-information-bar-button-border-color;
-    border-width: $act-information-bar-button-border-width;
+    color: var(--act-bar-btn-text, #{$act-information-bar-button-text-color});
+    border-color: var(--act-bar-btn-border, #{$act-information-bar-button-border-color});
+    border-width: var(--act-bar-btn-border-width, #{$act-information-bar-button-border-width});
     border-style: solid;
-    font-size: $act-information-bar-font-size;
-    background-color: $act-information-bar-button-background-color;
+    font-size: var(--act-bar-font-size, #{$act-information-bar-font-size});
+    background-color: var(--act-bar-btn-bg, #{$act-information-bar-button-background-color});
     transition: all 0.3s ease;
 
     &:hover {
-        color: $act-information-bar-button-text-color-hover;
-        border-color: $act-information-bar-button-border-color-hover;
-        background-color: $act-information-bar-button-background-color-hover;
+        color: var(--act-bar-btn-text-hover, #{$act-information-bar-button-text-color-hover});
+        border-color: var(--act-bar-btn-border-hover, #{$act-information-bar-button-border-color-hover});
+        background-color: var(--act-bar-btn-bg-hover, #{$act-information-bar-button-background-color-hover});
     }
 }

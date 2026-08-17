@@ -1,0 +1,21 @@
+.act-information-bar-defaults {
+    // Mirrors the detail page's appearance card: the sales channel switch sits outside any
+    // card, so it needs the same max-width to line up visually with the cards below it.
+    .sw-sales-channel-switch {
+        max-width: 960px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    // Same grouping headings as the detail page's appearance card ("Status & Zeitsteuerung",
+    // "Farben, Abstände & Schriftgröße", "Button").
+    &__group-title {
+        margin: 32px 0 16px;
+        font-size: var(--font-size-m);
+        font-weight: var(--font-weight-semibold);
+
+        &:first-of-type {
+            margin-top: 0;
+        }
+    }
+}

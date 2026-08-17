@@ -1,4 +1,11 @@
 {
+    "sw-privileges": {
+        "permissions": {
+            "act_information_bar": {
+                "label": "Information bars"
+            }
+        }
+    },
     "actInformationBar": {
         "general": {
             "mainMenuItemGeneral": "Information bar",
@@ -11,7 +18,26 @@
                 "issues": "Problems or feature requests?"
             }
         },
+        "defaults": {
+            "title": "Defaults for new bars",
+            "stylingCardTitle": "Appearance template",
+            "stylingHint": "These values are copied when a new bar is created. Existing bars are not affected.",
+            "timezoneCardTitle": "Timezone",
+            "timezoneLabel": "Timezone",
+            "timezoneHint": "Start and end times of all bars are evaluated in this timezone. Unlike the other fields here, it takes effect immediately.",
+            "loadError": "The defaults could not be loaded.",
+            "saveError": "The defaults could not be saved.",
+            "saveSuccess": "The defaults have been saved."
+        },
         "detail": {
+            "generalCardTitle": "General",
+            "nameLabel": "Name",
+            "salesChannelLabel": "Sales channel",
+            "timezoneHint": "Times apply in the {timezone} timezone",
+            "overlapWarning": "Overlaps with \"{name}\" — the later starting bar wins there.",
+            "invalidWindowWarning": "With this time period the bar will never be shown, because the end date is not after the start date. Please check the start and end date.",
+            "dstMissingHourWarning": "On {date} the clocks move forward by one hour in the {timezone} timezone. That hour does not exist on this day — please check the time you entered.",
+            "dstDuplicateHourWarning": "On {date} the clocks move back by one hour in the {timezone} timezone. One hour exists twice on this day — please check the time you entered.",
             "contentCardTitle": "Content",
             "messageLabel": "Message (one line per display)",
             "messageHelpText": "Each line is displayed in turn",
@@ -45,11 +71,33 @@
             "fullWidthLabel": "Full width",
             "paddingBottomLabel": "Padding bottom (in pixels)",
             "paddingTopLabel": "Padding top (in pixels)",
-            "saveConfigError": "The appearance settings could not be saved.",
             "showButtonLabel": "Show button",
             "startDateLabel": "Start date",
-            "textColorLabel": "Text color",
-            "themeCompileHint": "Changes to colors and spacing only become visible after a theme compilation."
+            "textColorLabel": "Text color"
+        },
+        "list": {
+            "columnName": "Name",
+            "columnSalesChannel": "Sales channel",
+            "columnPeriod": "Period",
+            "columnStatus": "Status",
+            "statusRunning": "running",
+            "statusPlanned": "planned",
+            "statusExpired": "expired",
+            "statusInactive": "inactive",
+            "statusEvergreen": "running",
+            "periodEvergreen": "permanent",
+            "periodFrom": "from {date}",
+            "periodUntil": "until {date}",
+            "periodRange": "{from} – {until}",
+            "allSalesChannels": "All sales channels",
+            "buttonAdd": "Add bar",
+            "buttonDefaults": "Defaults",
+            "emptyTitle": "No information bar yet",
+            "emptySubline": "Create a bar to show it in the storefront.",
+            "loadError": "The bars could not be loaded.",
+            "deleteError": "The bar could not be deleted.",
+            "duplicate": "Duplicate",
+            "duplicateError": "The bar could not be duplicated."
         }
     }
 }

@@ -14,7 +14,13 @@
 
     {% block act_information_bar_detail_actions %}
     <template #smart-bar-actions>
-        <mt-button variant="primary" :is-loading="isSaving" @click="onSave">
+        <mt-button
+            variant="primary"
+            :is-loading="isSaving"
+            v-tooltip="saveButtonTooltip"
+            :disabled="!acl.can('act_information_bar.editor') || undefined"
+            @click="onSave"
+        >
             {{ $tc('global.default.save') }}
         </mt-button>
     </template>
@@ -23,7 +29,71 @@
     {% block act_information_bar_detail_content %}
     <template #content>
         <sw-card-view>
-            <sw-sales-channel-switch @change-sales-channel-id="onSalesChannelChanged"></sw-sales-channel-switch>
+            {% block act_information_bar_detail_general_card %}
+            <mt-card :title="$tc('actInformationBar.detail.generalCardTitle')" :is-loading="isLoading">
+                <!-- bar and timezone resolve as two independent promises inside the same
+                     Promise.all in loadData(); gating on isLoading too (not just bar) keeps
+                     the datepickers below from ever mounting against the stale initial 'UTC'
+                     default before the real shop timezone has arrived. -->
+                <template v-if="bar && !isLoading">
+                    {% block act_information_bar_detail_field_name %}
+                    <mt-text-field
+                        name="sw-field--act-information-bar-name"
+                        :label="$tc('actInformationBar.detail.nameLabel')"
+                        :model-value="bar.name"
+                        @update:model-value="onFieldInput('name', $event)"
+                    />
+                    {% endblock %}
+
+                    {% block act_information_bar_detail_field_active %}
+                    <mt-switch
+                        name="sw-field--act-information-bar-active"
+                        :label="$tc('actInformationBar.detail.activeLabel')"
+                        :model-value="bar.active"
+                        @update:model-value="onFieldInput('active', $event)"
+                    />
+                    {% endblock %}
+
+                    {% block act_information_bar_detail_field_sales_channel %}
+                    <sw-entity-single-select
+                        entity="sales_channel"
+                        :label="$tc('actInformationBar.detail.salesChannelLabel')"
+                        :placeholder="$tc('actInformationBar.list.allSalesChannels')"
+                        :value="bar.salesChannelId"
+                        @update:value="onFieldInput('salesChannelId', $event)"
+                    />
+                    {% endblock %}
+
+                    {% block act_information_bar_detail_field_group_dates %}
+                    <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0px 30px">
+                        {% block act_information_bar_detail_field_start_date %}
+                        <mt-datepicker
+                            name="sw-field--act-information-bar-start-date"
+                            date-type="datetime"
+                            :label="$tc('actInformationBar.detail.startDateLabel')"
+                            :help-text="$tc('actInformationBar.detail.timezoneHint', 0, { timezone: timezone })"
+                            :time-zone="timezone"
+                            :model-value="bar.startDate"
+                            @update:model-value="onFieldInput('startDate', $event)"
+                        />
+                        {% endblock %}
+
+                        {% block act_information_bar_detail_field_end_date %}
+                        <mt-datepicker
+                            name="sw-field--act-information-bar-end-date"
+                            date-type="datetime"
+                            :label="$tc('actInformationBar.detail.endDateLabel')"
+                            :help-text="$tc('actInformationBar.detail.timezoneHint', 0, { timezone: timezone })"
+                            :time-zone="timezone"
+                            :model-value="bar.endDate"
+                            @update:model-value="onFieldInput('endDate', $event)"
+                        />
+                        {% endblock %}
+                    </sw-container>
+                    {% endblock %}
+                </template>
+            </mt-card>
+            {% endblock %}
 
             {% block act_information_bar_detail_content_card %}
             <mt-card :title="$tc('actInformationBar.detail.contentCardTitle')" :is-loading="isLoading">
@@ -70,7 +140,7 @@
 
             {% block act_information_bar_detail_appearance_card %}
             <mt-card :title="$tc('actInformationBar.detail.appearanceCardTitle')" :is-loading="isLoading">
-                <template v-if="configLoaded">
+                <template v-if="bar">
                     {% block act_information_bar_detail_appearance_language_hint %}
                     <mt-banner variant="info">
                         {{ $tc('actInformationBar.detail.appearanceLanguageHint') }}
@@ -80,21 +150,12 @@
                     {% block act_information_bar_detail_appearance_group_status %}
                     <h3 class="act-information-bar-detail__appearance-group-title">{{ $tc('actInformationBar.detail.appearanceStatusGroupTitle') }}</h3>
 
-                    {% block act_information_bar_detail_field_is_active %}
-                    <mt-switch
-                        name="sw-field--act-information-bar-is-active"
-                        :label="$tc('actInformationBar.detail.activeLabel')"
-                        :model-value="config['ActInformationBar.config.isActive']"
-                        @update:model-value="onConfigInput('isActive', $event)"
-                    />
-                    {% endblock %}
-
                     {% block act_information_bar_detail_field_full_width %}
                     <mt-switch
                         name="sw-field--act-information-bar-full-width"
                         :label="$tc('actInformationBar.detail.fullWidthLabel')"
-                        :model-value="config['ActInformationBar.config.fullWidth']"
-                        @update:model-value="onConfigInput('fullWidth', $event)"
+                        :model-value="bar.fullWidth"
+                        @update:model-value="onFieldInput('fullWidth', $event)"
                     />
                     {% endblock %}
 
@@ -105,33 +166,9 @@
                         :min="1"
                         :max="10"
                         :label="$tc('actInformationBar.detail.displayDurationLabel')"
-                        :model-value="config['ActInformationBar.config.displayDuration']"
-                        @update:model-value="onConfigInput('displayDuration', $event)"
+                        :model-value="bar.displayDuration"
+                        @update:model-value="onFieldInput('displayDuration', $event)"
                     />
-                    {% endblock %}
-
-                    {% block act_information_bar_detail_field_group_dates %}
-                    <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0px 30px">
-                        {% block act_information_bar_detail_field_start_date %}
-                        <mt-datepicker
-                            name="sw-field--act-information-bar-start-date"
-                            date-type="datetime"
-                            :label="$tc('actInformationBar.detail.startDateLabel')"
-                            :model-value="config['ActInformationBar.config.startDate']"
-                            @update:model-value="onConfigInput('startDate', $event)"
-                        />
-                        {% endblock %}
-
-                        {% block act_information_bar_detail_field_end_date %}
-                        <mt-datepicker
-                            name="sw-field--act-information-bar-end-date"
-                            date-type="datetime"
-                            :label="$tc('actInformationBar.detail.endDateLabel')"
-                            :model-value="config['ActInformationBar.config.endDate']"
-                            @update:model-value="onConfigInput('endDate', $event)"
-                        />
-                        {% endblock %}
-                    </sw-container>
                     {% endblock %}
                     {% endblock %}
 
@@ -144,8 +181,8 @@
                         <mt-colorpicker
                             name="sw-field--act-information-bar-text-color"
                             :label="$tc('actInformationBar.detail.textColorLabel')"
-                            :model-value="config['ActInformationBar.config.textColor']"
-                            @update:model-value="onConfigInput('textColor', $event)"
+                            :model-value="bar.textColor"
+                            @update:model-value="onFieldInput('textColor', $event)"
                         />
                         {% endblock %}
 
@@ -153,8 +190,8 @@
                         <mt-colorpicker
                             name="sw-field--act-information-bar-background-color"
                             :label="$tc('actInformationBar.detail.backgroundColorLabel')"
-                            :model-value="config['ActInformationBar.config.backgroundColor']"
-                            @update:model-value="onConfigInput('backgroundColor', $event)"
+                            :model-value="bar.backgroundColor"
+                            @update:model-value="onFieldInput('backgroundColor', $event)"
                         />
                         {% endblock %}
                     </sw-container>
@@ -166,8 +203,8 @@
                         <mt-text-field
                             name="sw-field--act-information-bar-padding-top"
                             :label="$tc('actInformationBar.detail.paddingTopLabel')"
-                            :model-value="config['ActInformationBar.config.paddingTop']"
-                            @update:model-value="onConfigInput('paddingTop', $event)"
+                            :model-value="bar.paddingTop"
+                            @update:model-value="onFieldInput('paddingTop', $event)"
                         />
                         {% endblock %}
 
@@ -175,8 +212,8 @@
                         <mt-text-field
                             name="sw-field--act-information-bar-padding-bottom"
                             :label="$tc('actInformationBar.detail.paddingBottomLabel')"
-                            :model-value="config['ActInformationBar.config.paddingBottom']"
-                            @update:model-value="onConfigInput('paddingBottom', $event)"
+                            :model-value="bar.paddingBottom"
+                            @update:model-value="onFieldInput('paddingBottom', $event)"
                         />
                         {% endblock %}
                     </sw-container>
@@ -186,8 +223,8 @@
                     <mt-text-field
                         name="sw-field--act-information-bar-font-size"
                         :label="$tc('actInformationBar.detail.fontSizeLabel')"
-                        :model-value="config['ActInformationBar.config.fontSize']"
-                        @update:model-value="onConfigInput('fontSize', $event)"
+                        :model-value="bar.fontSize"
+                        @update:model-value="onFieldInput('fontSize', $event)"
                     />
                     {% endblock %}
                     {% endblock %}
@@ -199,8 +236,8 @@
                     <mt-switch
                         name="sw-field--act-information-bar-show-button"
                         :label="$tc('actInformationBar.detail.showButtonLabel')"
-                        :model-value="config['ActInformationBar.config.showButton']"
-                        @update:model-value="onConfigInput('showButton', $event)"
+                        :model-value="bar.showButton"
+                        @update:model-value="onFieldInput('showButton', $event)"
                     />
                     {% endblock %}
 
@@ -209,8 +246,8 @@
                         name="sw-field--act-information-bar-button-target"
                         :label="$tc('actInformationBar.detail.buttonTargetLabel')"
                         :options="buttonTargetOptions"
-                        :model-value="config['ActInformationBar.config.buttonTarget']"
-                        @update:model-value="onConfigInput('buttonTarget', $event)"
+                        :model-value="bar.buttonTarget"
+                        @update:model-value="onFieldInput('buttonTarget', $event)"
                     />
                     {% endblock %}
 
@@ -220,8 +257,8 @@
                         <mt-colorpicker
                             name="sw-field--act-information-bar-button-text-color"
                             :label="$tc('actInformationBar.detail.buttonTextColorLabel')"
-                            :model-value="config['ActInformationBar.config.buttonTextColor']"
-                            @update:model-value="onConfigInput('buttonTextColor', $event)"
+                            :model-value="bar.buttonTextColor"
+                            @update:model-value="onFieldInput('buttonTextColor', $event)"
                         />
                         {% endblock %}
 
@@ -229,8 +266,8 @@
                         <mt-colorpicker
                             name="sw-field--act-information-bar-button-text-color-hover"
                             :label="$tc('actInformationBar.detail.buttonTextColorHoverLabel')"
-                            :model-value="config['ActInformationBar.config.buttonTextColorHover']"
-                            @update:model-value="onConfigInput('buttonTextColorHover', $event)"
+                            :model-value="bar.buttonTextColorHover"
+                            @update:model-value="onFieldInput('buttonTextColorHover', $event)"
                         />
                         {% endblock %}
                     </sw-container>
@@ -242,8 +279,8 @@
                         <mt-colorpicker
                             name="sw-field--act-information-bar-button-border-color"
                             :label="$tc('actInformationBar.detail.buttonBorderColorLabel')"
-                            :model-value="config['ActInformationBar.config.buttonBorderColor']"
-                            @update:model-value="onConfigInput('buttonBorderColor', $event)"
+                            :model-value="bar.buttonBorderColor"
+                            @update:model-value="onFieldInput('buttonBorderColor', $event)"
                         />
                         {% endblock %}
 
@@ -251,8 +288,8 @@
                         <mt-colorpicker
                             name="sw-field--act-information-bar-button-border-color-hover"
                             :label="$tc('actInformationBar.detail.buttonBorderColorHoverLabel')"
-                            :model-value="config['ActInformationBar.config.buttonBorderColorHover']"
-                            @update:model-value="onConfigInput('buttonBorderColorHover', $event)"
+                            :model-value="bar.buttonBorderColorHover"
+                            @update:model-value="onFieldInput('buttonBorderColorHover', $event)"
                         />
                         {% endblock %}
                     </sw-container>
@@ -262,8 +299,8 @@
                     <mt-text-field
                         name="sw-field--act-information-bar-button-border-width"
                         :label="$tc('actInformationBar.detail.buttonBorderWidthLabel')"
-                        :model-value="config['ActInformationBar.config.buttonBorderWidth']"
-                        @update:model-value="onConfigInput('buttonBorderWidth', $event)"
+                        :model-value="bar.buttonBorderWidth"
+                        @update:model-value="onFieldInput('buttonBorderWidth', $event)"
                     />
                     {% endblock %}
 
@@ -273,8 +310,8 @@
                         <mt-colorpicker
                             name="sw-field--act-information-bar-button-background-color"
                             :label="$tc('actInformationBar.detail.buttonBackgroundColorLabel')"
-                            :model-value="config['ActInformationBar.config.buttonBackgroundColor']"
-                            @update:model-value="onConfigInput('buttonBackgroundColor', $event)"
+                            :model-value="bar.buttonBackgroundColor"
+                            @update:model-value="onFieldInput('buttonBackgroundColor', $event)"
                         />
                         {% endblock %}
 
@@ -282,18 +319,12 @@
                         <mt-colorpicker
                             name="sw-field--act-information-bar-button-background-color-hover"
                             :label="$tc('actInformationBar.detail.buttonBackgroundColorHoverLabel')"
-                            :model-value="config['ActInformationBar.config.buttonBackgroundColorHover']"
-                            @update:model-value="onConfigInput('buttonBackgroundColorHover', $event)"
+                            :model-value="bar.buttonBackgroundColorHover"
+                            @update:model-value="onFieldInput('buttonBackgroundColorHover', $event)"
                         />
                         {% endblock %}
                     </sw-container>
                     {% endblock %}
-                    {% endblock %}
-
-                    {% block act_information_bar_detail_appearance_theme_compile_hint %}
-                    <mt-banner variant="attention">
-                        {{ $tc('actInformationBar.detail.themeCompileHint') }}
-                    </mt-banner>
                     {% endblock %}
                 </template>
             </mt-card>

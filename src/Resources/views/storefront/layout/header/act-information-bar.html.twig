@@ -4,7 +4,7 @@
 	{% set barClass = actInformationBar.fullWidth ? 'act-info-bar act-info-bar-full-width' : 'act-info-bar' %}
 	{% set containerClass = actInformationBar.fullWidth ? 'container' : 'container act-info-bar-content' %}
 
-	<div class="{{ barClass }}" data-act-information-bar="true" data-timestamp="{{ 'now'|date('U') }}" style="font-size: {{ actInformationBar.fontSize }}px;">
+	<div class="{{ barClass }}" data-act-information-bar="true" data-timestamp="{{ 'now'|date('U') }}" style="{{ actInformationBar.style }}">
 		<div class="{{ containerClass }}">
 			<div class="act-info-bar-inner">
 				<div class="act-info-message-container" data-message="{{ actInformationBar.message|escape }}" data-duration="{{ actInformationBar.displayDuration }}"></div>

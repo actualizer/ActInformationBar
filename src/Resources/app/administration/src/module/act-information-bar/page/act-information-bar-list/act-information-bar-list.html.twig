@@ -1,0 +1,81 @@
+{% block act_information_bar_list %}
+<sw-page class="act-information-bar-list">
+    <template #smart-bar-header>
+        <h2>{{ $tc('actInformationBar.general.mainMenuItemGeneral') }}</h2>
+    </template>
+
+    <template #smart-bar-actions>
+        <mt-button
+            v-tooltip="defaultsButtonTooltip"
+            variant="secondary"
+            :disabled="!acl.can('act_information_bar.editor') || undefined"
+            @click="$router.push({ name: 'act.information.bar.defaults' })"
+        >
+            {{ $tc('actInformationBar.list.buttonDefaults') }}
+        </mt-button>
+        <mt-button
+            variant="primary"
+            :disabled="!acl.can('act_information_bar.creator') || undefined"
+            @click="$router.push({ name: 'act.information.bar.create' })"
+        >
+            {{ $tc('actInformationBar.list.buttonAdd') }}
+        </mt-button>
+    </template>
+
+    <template #content>
+        <div class="act-information-bar-list__content">
+            <mt-empty-state
+                v-if="!isLoading && !total"
+                :centered="true"
+                :headline="$tc('actInformationBar.list.emptyTitle')"
+                :description="$tc('actInformationBar.list.emptySubline')"
+                icon="regular-megaphone"
+            />
+
+            <sw-entity-listing
+                v-else
+                :repository="barRepository"
+                :columns="columns"
+                :data-source="bars"
+                :is-loading="isLoading"
+                :detail-route="'act.information.bar.detail'"
+                :allow-inline-edit="acl.can('act_information_bar.editor') || undefined"
+                :allow-edit="acl.can('act_information_bar.editor') || undefined"
+                :allow-delete="acl.can('act_information_bar.deleter') || undefined"
+                :show-selection="acl.can('act_information_bar.deleter') || undefined"
+                identifier="act-information-bar-list"
+                @update-records="updateTotal"
+            >
+                <template #column-salesChannelId="{ item }">
+                    {{ salesChannelOf(item) }}
+                </template>
+
+                <template #column-period="{ item }">
+                    {{ periodOf(item) }}
+                </template>
+
+                <template #column-status="{ item }">
+                    <span class="act-information-bar-list__status">
+                        <mt-icon
+                            :name="statusOf(item).icon"
+                            size="16px"
+                            :class="['act-information-bar-list__status-icon', statusOf(item).colorClass]"
+                        />
+                        {{ statusOf(item).label }}
+                    </span>
+                </template>
+
+                <template #more-actions="{ item }">
+                    <sw-context-menu-item
+                        v-tooltip="duplicateTooltip"
+                        :disabled="!acl.can('act_information_bar.creator')"
+                        @click="onDuplicate(item.id)"
+                    >
+                        {{ $tc('actInformationBar.list.duplicate') }}
+                    </sw-context-menu-item>
+                </template>
+            </sw-entity-listing>
+        </div>
+    </template>
+</sw-page>
+{% endblock %}

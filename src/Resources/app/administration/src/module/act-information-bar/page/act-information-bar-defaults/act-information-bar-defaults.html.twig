@@ -1,0 +1,246 @@
+{% block act_information_bar_defaults %}
+<sw-page class="act-information-bar-defaults">
+    {% block act_information_bar_defaults_smart_bar_header %}
+    <template #smart-bar-header>
+        <h2>{{ $tc('actInformationBar.defaults.title') }}</h2>
+    </template>
+    {% endblock %}
+
+    {% block act_information_bar_defaults_actions %}
+    <template #smart-bar-actions>
+        <mt-button
+            variant="primary"
+            :is-loading="isSaving"
+            :disabled="!acl.can('act_information_bar.editor') || undefined"
+            @click="onSave"
+        >
+            {{ $tc('global.default.save') }}
+        </mt-button>
+    </template>
+    {% endblock %}
+
+    {% block act_information_bar_defaults_content %}
+    <template #content>
+        <sw-card-view>
+            {% block act_information_bar_defaults_sales_channel_switch %}
+            <sw-sales-channel-switch @change-sales-channel-id="onSalesChannelChanged" />
+            {% endblock %}
+
+            {% block act_information_bar_defaults_timezone_card %}
+            <mt-card :title="$tc('actInformationBar.defaults.timezoneCardTitle')" :is-loading="isLoading">
+                <template v-if="loaded">
+                    {% block act_information_bar_defaults_timezone_hint %}
+                    <mt-banner variant="info">
+                        {{ $tc('actInformationBar.defaults.timezoneHint') }}
+                    </mt-banner>
+                    {% endblock %}
+
+                    {% block act_information_bar_defaults_field_timezone %}
+                    <mt-select
+                        name="sw-field--act-information-bar-timezone"
+                        :label="$tc('actInformationBar.defaults.timezoneLabel')"
+                        :options="timezoneOptions"
+                        :model-value="timezone"
+                        @update:model-value="onTimezoneInput($event)"
+                    />
+                    {% endblock %}
+                </template>
+            </mt-card>
+            {% endblock %}
+
+            {% block act_information_bar_defaults_styling_card %}
+            <mt-card :title="$tc('actInformationBar.defaults.stylingCardTitle')" :is-loading="isLoading">
+                <template v-if="loaded">
+                    {% block act_information_bar_defaults_styling_hint %}
+                    <mt-banner variant="info">
+                        {{ $tc('actInformationBar.defaults.stylingHint') }}
+                    </mt-banner>
+                    {% endblock %}
+
+                    {% block act_information_bar_defaults_group_status %}
+                    <h3 class="act-information-bar-defaults__group-title">{{ $tc('actInformationBar.detail.appearanceStatusGroupTitle') }}</h3>
+
+                    {% block act_information_bar_defaults_field_full_width %}
+                    <mt-switch
+                        name="sw-field--act-information-bar-default-full-width"
+                        :label="$tc('actInformationBar.detail.fullWidthLabel')"
+                        :model-value="defaults.fullWidth"
+                        @update:model-value="onFieldInput('fullWidth', $event)"
+                    />
+                    {% endblock %}
+
+                    {% block act_information_bar_defaults_field_display_duration %}
+                    <mt-number-field
+                        name="sw-field--act-information-bar-default-display-duration"
+                        number-type="int"
+                        :min="1"
+                        :max="10"
+                        :label="$tc('actInformationBar.detail.displayDurationLabel')"
+                        :model-value="defaults.displayDuration"
+                        @update:model-value="onFieldInput('displayDuration', $event)"
+                    />
+                    {% endblock %}
+                    {% endblock %}
+
+                    {% block act_information_bar_defaults_group_colors %}
+                    <h3 class="act-information-bar-defaults__group-title">{{ $tc('actInformationBar.detail.appearanceColorsGroupTitle') }}</h3>
+
+                    {% block act_information_bar_defaults_field_group_colors %}
+                    <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0px 30px">
+                        {% block act_information_bar_defaults_field_text_color %}
+                        <mt-colorpicker
+                            name="sw-field--act-information-bar-default-text-color"
+                            :label="$tc('actInformationBar.detail.textColorLabel')"
+                            :model-value="defaults.textColor"
+                            @update:model-value="onFieldInput('textColor', $event)"
+                        />
+                        {% endblock %}
+
+                        {% block act_information_bar_defaults_field_background_color %}
+                        <mt-colorpicker
+                            name="sw-field--act-information-bar-default-background-color"
+                            :label="$tc('actInformationBar.detail.backgroundColorLabel')"
+                            :model-value="defaults.backgroundColor"
+                            @update:model-value="onFieldInput('backgroundColor', $event)"
+                        />
+                        {% endblock %}
+                    </sw-container>
+                    {% endblock %}
+
+                    {% block act_information_bar_defaults_field_group_padding %}
+                    <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0px 30px">
+                        {% block act_information_bar_defaults_field_padding_top %}
+                        <mt-text-field
+                            name="sw-field--act-information-bar-default-padding-top"
+                            :label="$tc('actInformationBar.detail.paddingTopLabel')"
+                            :model-value="defaults.paddingTop"
+                            @update:model-value="onFieldInput('paddingTop', $event)"
+                        />
+                        {% endblock %}
+
+                        {% block act_information_bar_defaults_field_padding_bottom %}
+                        <mt-text-field
+                            name="sw-field--act-information-bar-default-padding-bottom"
+                            :label="$tc('actInformationBar.detail.paddingBottomLabel')"
+                            :model-value="defaults.paddingBottom"
+                            @update:model-value="onFieldInput('paddingBottom', $event)"
+                        />
+                        {% endblock %}
+                    </sw-container>
+                    {% endblock %}
+
+                    {% block act_information_bar_defaults_field_font_size %}
+                    <mt-text-field
+                        name="sw-field--act-information-bar-default-font-size"
+                        :label="$tc('actInformationBar.detail.fontSizeLabel')"
+                        :model-value="defaults.fontSize"
+                        @update:model-value="onFieldInput('fontSize', $event)"
+                    />
+                    {% endblock %}
+                    {% endblock %}
+
+                    {% block act_information_bar_defaults_group_button %}
+                    <h3 class="act-information-bar-defaults__group-title">{{ $tc('actInformationBar.detail.appearanceButtonGroupTitle') }}</h3>
+
+                    {% block act_information_bar_defaults_field_show_button %}
+                    <mt-switch
+                        name="sw-field--act-information-bar-default-show-button"
+                        :label="$tc('actInformationBar.detail.showButtonLabel')"
+                        :model-value="defaults.showButton"
+                        @update:model-value="onFieldInput('showButton', $event)"
+                    />
+                    {% endblock %}
+
+                    {% block act_information_bar_defaults_field_button_target %}
+                    <mt-select
+                        name="sw-field--act-information-bar-default-button-target"
+                        :label="$tc('actInformationBar.detail.buttonTargetLabel')"
+                        :options="buttonTargetOptions"
+                        :model-value="defaults.buttonTarget"
+                        @update:model-value="onFieldInput('buttonTarget', $event)"
+                    />
+                    {% endblock %}
+
+                    {% block act_information_bar_defaults_field_group_button_text_color %}
+                    <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0px 30px">
+                        {% block act_information_bar_defaults_field_button_text_color %}
+                        <mt-colorpicker
+                            name="sw-field--act-information-bar-default-button-text-color"
+                            :label="$tc('actInformationBar.detail.buttonTextColorLabel')"
+                            :model-value="defaults.buttonTextColor"
+                            @update:model-value="onFieldInput('buttonTextColor', $event)"
+                        />
+                        {% endblock %}
+
+                        {% block act_information_bar_defaults_field_button_text_color_hover %}
+                        <mt-colorpicker
+                            name="sw-field--act-information-bar-default-button-text-color-hover"
+                            :label="$tc('actInformationBar.detail.buttonTextColorHoverLabel')"
+                            :model-value="defaults.buttonTextColorHover"
+                            @update:model-value="onFieldInput('buttonTextColorHover', $event)"
+                        />
+                        {% endblock %}
+                    </sw-container>
+                    {% endblock %}
+
+                    {% block act_information_bar_defaults_field_group_button_border_color %}
+                    <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0px 30px">
+                        {% block act_information_bar_defaults_field_button_border_color %}
+                        <mt-colorpicker
+                            name="sw-field--act-information-bar-default-button-border-color"
+                            :label="$tc('actInformationBar.detail.buttonBorderColorLabel')"
+                            :model-value="defaults.buttonBorderColor"
+                            @update:model-value="onFieldInput('buttonBorderColor', $event)"
+                        />
+                        {% endblock %}
+
+                        {% block act_information_bar_defaults_field_button_border_color_hover %}
+                        <mt-colorpicker
+                            name="sw-field--act-information-bar-default-button-border-color-hover"
+                            :label="$tc('actInformationBar.detail.buttonBorderColorHoverLabel')"
+                            :model-value="defaults.buttonBorderColorHover"
+                            @update:model-value="onFieldInput('buttonBorderColorHover', $event)"
+                        />
+                        {% endblock %}
+                    </sw-container>
+                    {% endblock %}
+
+                    {% block act_information_bar_defaults_field_button_border_width %}
+                    <mt-text-field
+                        name="sw-field--act-information-bar-default-button-border-width"
+                        :label="$tc('actInformationBar.detail.buttonBorderWidthLabel')"
+                        :model-value="defaults.buttonBorderWidth"
+                        @update:model-value="onFieldInput('buttonBorderWidth', $event)"
+                    />
+                    {% endblock %}
+
+                    {% block act_information_bar_defaults_field_group_button_background_color %}
+                    <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0px 30px">
+                        {% block act_information_bar_defaults_field_button_background_color %}
+                        <mt-colorpicker
+                            name="sw-field--act-information-bar-default-button-background-color"
+                            :label="$tc('actInformationBar.detail.buttonBackgroundColorLabel')"
+                            :model-value="defaults.buttonBackgroundColor"
+                            @update:model-value="onFieldInput('buttonBackgroundColor', $event)"
+                        />
+                        {% endblock %}
+
+                        {% block act_information_bar_defaults_field_button_background_color_hover %}
+                        <mt-colorpicker
+                            name="sw-field--act-information-bar-default-button-background-color-hover"
+                            :label="$tc('actInformationBar.detail.buttonBackgroundColorHoverLabel')"
+                            :model-value="defaults.buttonBackgroundColorHover"
+                            @update:model-value="onFieldInput('buttonBackgroundColorHover', $event)"
+                        />
+                        {% endblock %}
+                    </sw-container>
+                    {% endblock %}
+                    {% endblock %}
+                </template>
+            </mt-card>
+            {% endblock %}
+        </sw-card-view>
+    </template>
+    {% endblock %}
+</sw-page>
+{% endblock %}
