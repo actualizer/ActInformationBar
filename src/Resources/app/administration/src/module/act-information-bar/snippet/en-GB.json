@@ -96,6 +96,7 @@
             "emptySubline": "Create a bar to show it in the storefront.",
             "loadError": "The bars could not be loaded.",
             "deleteError": "The bar could not be deleted.",
+            "deleteMultipleError": "The selected bars could not be deleted.",
             "duplicate": "Duplicate",
             "duplicateError": "The bar could not be duplicated."
         }

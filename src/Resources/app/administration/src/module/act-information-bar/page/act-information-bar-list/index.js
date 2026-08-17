@@ -7,7 +7,7 @@ const { Mixin } = Shopware;
 Shopware.Component.register('act-information-bar-list', {
     template,
 
-    inject: ['repositoryFactory', 'acl'],
+    inject: ['repositoryFactory', 'acl', 'informationBarDefaultsService'],
 
     mixins: [
         Mixin.getByName('listing'),
@@ -20,7 +20,10 @@ Shopware.Component.register('act-information-bar-list', {
             bars: null,
             total: 0,
             sortBy: 'name',
-            sortDirection: 'ASC'
+            sortDirection: 'ASC',
+            // Stays null until the defaults API answers; periodOf then keeps the platform
+            // default rather than guessing a zone.
+            timezone: null
         };
     },
 
@@ -68,19 +71,23 @@ Shopware.Component.register('act-information-bar-list', {
                     primary: true
                 },
                 {
+                    // Sorted by the displayed channel name rather than the raw id, which would
+                    // order by UUID and look arbitrary. Bars without a channel sort as NULL.
                     property: 'salesChannelId',
+                    dataIndex: 'salesChannel.name',
                     label: this.$tc('actInformationBar.list.columnSalesChannel')
                 },
                 {
-                    // Virtual column combining startDate/endDate; not a DAL field, so it must
-                    // never be sortable (a click would try to sort by a non-existent field).
+                    // Virtual column combining startDate/endDate. It is sortable through
+                    // dataIndex, which points the sorting at the two real fields behind it.
                     property: 'period',
-                    label: this.$tc('actInformationBar.list.columnPeriod'),
-                    sortable: false
+                    dataIndex: 'startDate,endDate',
+                    label: this.$tc('actInformationBar.list.columnPeriod')
                 },
                 {
-                    // Virtual column derived from active/startDate/endDate; same reasoning
-                    // as "period" above.
+                    // Derived from active/startDate/endDate *and the current time*, so unlike
+                    // "period" above there is no set of DAL fields that reproduces the shown
+                    // order. Sorting stays off rather than offering a misleading one.
                     property: 'status',
                     label: this.$tc('actInformationBar.list.columnStatus'),
                     sortable: false
@@ -93,8 +100,13 @@ Shopware.Component.register('act-information-bar-list', {
         getList() {
             this.isLoading = true;
 
-            return this.barRepository.search(this.barCriteria, Shopware.Context.api)
-                .then((result) => {
+            // The timezone is awaited alongside the search so the first render already has it;
+            // otherwise the rows would briefly show times in a different zone.
+            return Promise.all([
+                this.barRepository.search(this.barCriteria, Shopware.Context.api),
+                this.loadTimezone()
+            ])
+                .then(([result]) => {
                     this.bars = result;
                     this.total = result.total;
 
@@ -114,6 +126,37 @@ Shopware.Component.register('act-information-bar-list', {
         // own criteria on the loaded result) and only reports the new total back here.
         updateTotal({ total }) {
             this.total = total;
+        },
+
+        // Loaded once per visit. A failure is swallowed on purpose: the list must still show
+        // its bars, and periodOf then falls back to the platform's own formatting.
+        loadTimezone() {
+            if (this.timezone) {
+                return Promise.resolve(this.timezone);
+            }
+
+            return this.informationBarDefaultsService.getTimezone()
+                .then((timezone) => {
+                    this.timezone = timezone;
+
+                    return timezone;
+                })
+                .catch(() => null);
+        },
+
+        // sw-entity-listing swallows delete errors and only reports them through these two
+        // events, so without a handler a failed delete leaves the row in place with no
+        // feedback at all.
+        onDeleteFailed() {
+            this.createNotificationError({
+                message: this.$tc('actInformationBar.list.deleteError')
+            });
+        },
+
+        onDeleteItemsFailed() {
+            this.createNotificationError({
+                message: this.$tc('actInformationBar.list.deleteMultipleError')
+            });
         },
 
         // Mirrors BarScheduleResolver, evergreen-if-both-null included. bar.startDate carries
@@ -162,21 +205,28 @@ Shopware.Component.register('act-information-bar-list', {
         },
 
         periodOf(bar) {
-            const dateFilter = Shopware.Filter.getByName('date');
+            const filter = Shopware.Filter.getByName('date');
+            // Formatted in the shop timezone the detail page edits against. Without it the
+            // platform formats in the editing user's own profile timezone, so the same bar
+            // would show two different times depending on who is looking.
+            const options = this.timezone ? { timeZone: this.timezone } : {};
+            const dateFilter = (value) => filter(value, options);
 
             if (!bar.startDate && !bar.endDate) {
                 return this.$tc('actInformationBar.list.periodEvergreen');
             }
 
+            // $t, not $tc: the pluralisation API drops named values, which would render the
+            // period without any dates at all.
             if (bar.startDate && !bar.endDate) {
-                return this.$tc('actInformationBar.list.periodFrom', 0, { date: dateFilter(bar.startDate) });
+                return this.$t('actInformationBar.list.periodFrom', { date: dateFilter(bar.startDate) });
             }
 
             if (!bar.startDate && bar.endDate) {
-                return this.$tc('actInformationBar.list.periodUntil', 0, { date: dateFilter(bar.endDate) });
+                return this.$t('actInformationBar.list.periodUntil', { date: dateFilter(bar.endDate) });
             }
 
-            return this.$tc('actInformationBar.list.periodRange', 0, {
+            return this.$t('actInformationBar.list.periodRange', {
                 from: dateFilter(bar.startDate),
                 until: dateFilter(bar.endDate)
             });

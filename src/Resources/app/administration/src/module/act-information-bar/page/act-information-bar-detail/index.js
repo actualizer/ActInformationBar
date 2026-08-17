@@ -168,7 +168,9 @@ Shopware.Component.register('act-information-bar-detail', {
 
                 if (clash) {
                     this.createNotificationWarning({
-                        message: this.$tc('actInformationBar.detail.overlapWarning', 0, { name: clash.name }),
+                        // $t, not $tc: the pluralisation API drops named values, which would
+                        // leave the placeholder in this message empty.
+                        message: this.$t('actInformationBar.detail.overlapWarning', { name: clash.name }),
                     });
                 }
             });
@@ -218,9 +220,10 @@ Shopware.Component.register('act-information-bar-detail', {
                 const formattedDate = `${String(day).padStart(2, '0')}.${String(month).padStart(2, '0')}.${year}`;
 
                 this.createNotificationWarning({
-                    message: this.$tc(transition.missingHour
+                    // $t, not $tc: see the overlap warning above.
+                    message: this.$t(transition.missingHour
                         ? 'actInformationBar.detail.dstMissingHourWarning'
-                        : 'actInformationBar.detail.dstDuplicateHourWarning', 0, {
+                        : 'actInformationBar.detail.dstDuplicateHourWarning', {
                         date: formattedDate,
                         timezone: this.timezone,
                     }),

@@ -45,6 +45,8 @@
                 :show-selection="acl.can('act_information_bar.deleter') || undefined"
                 identifier="act-information-bar-list"
                 @update-records="updateTotal"
+                @delete-item-failed="onDeleteFailed"
+                @delete-items-failed="onDeleteItemsFailed"
             >
                 <template #column-salesChannelId="{ item }">
                     {{ salesChannelOf(item) }}

@@ -96,6 +96,7 @@
             "emptySubline": "Legen Sie eine Leiste an, um sie im Storefront anzuzeigen.",
             "loadError": "Die Leisten konnten nicht geladen werden.",
             "deleteError": "Die Leiste konnte nicht gelöscht werden.",
+            "deleteMultipleError": "Die ausgewählten Leisten konnten nicht gelöscht werden.",
             "duplicate": "Duplizieren",
             "duplicateError": "Die Leiste konnte nicht dupliziert werden."
         }
