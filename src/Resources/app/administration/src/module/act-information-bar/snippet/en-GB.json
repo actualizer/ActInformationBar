@@ -13,6 +13,15 @@
         },
         "settings": {
             "info": {
+                "howTo": {
+                    "title": "How it works",
+                    "item1": "Bars are not maintained here but under <strong>Content &gt; Information bars</strong>.",
+                    "item2": "Create as many bars as needed per sales channel, each with its own start and end date, for example for promotions.",
+                    "item3": "A bar without a period runs permanently. While a scheduled bar is active it takes over, and the permanent bar returns afterwards.",
+                    "item4": "Texts per language: switch the language at the top of the detail page. If a translation is missing, the default language's text is shown.",
+                    "item5": "Multiple lines in the message field are shown one after another.",
+                    "item6": "Colours and timezone for new bars: <strong>Information bars &gt; Defaults</strong>."
+                },
                 "description": "Displays a time-controlled information bar with a customizable message and optional button in the storefront.",
                 "openModuleLink": "Edit information bar messages",
                 "issues": "Problems or feature requests?"

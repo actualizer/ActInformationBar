@@ -13,6 +13,15 @@
         },
         "settings": {
             "info": {
+                "howTo": {
+                    "title": "So funktioniert's",
+                    "item1": "Die Leisten werden nicht hier gepflegt, sondern unter <strong>Inhalte &gt; Informationsleisten</strong>.",
+                    "item2": "Pro Verkaufskanal lassen sich beliebig viele Leisten anlegen, jede mit eigenem Start- und Enddatum, zum Beispiel für Aktionen.",
+                    "item3": "Eine Leiste ohne Zeitraum läuft dauerhaft. Solange eine zeitgesteuerte Leiste aktiv ist, wird sie davon überdeckt und erscheint danach automatisch wieder.",
+                    "item4": "Texte pro Sprache: die Sprache oben auf der Detailseite umschalten. Fehlt eine Übersetzung, erscheint der Text der Standardsprache.",
+                    "item5": "Mehrere Zeilen im Nachrichtenfeld werden nacheinander eingeblendet.",
+                    "item6": "Farben und Zeitzone für neue Leisten: <strong>Informationsleisten &gt; Vorgaben</strong>."
+                },
                 "description": "Zeigt eine zeitgesteuerte Informationszeile mit anpassbarer Nachricht und optionalem Button im Storefront an.",
                 "openModuleLink": "Nachrichten der Informationsleiste bearbeiten",
                 "issues": "Probleme oder Feature-Wünsche?"
