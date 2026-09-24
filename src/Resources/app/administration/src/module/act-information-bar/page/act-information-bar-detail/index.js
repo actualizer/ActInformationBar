@@ -243,7 +243,7 @@ Shopware.Component.register('act-information-bar-detail', {
                         }
                         return acc;
                     }, {});
-            } catch (e) {
+            } catch {
                 return null;
             }
         },
