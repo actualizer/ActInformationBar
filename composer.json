@@ -3,7 +3,7 @@
   "description": "A plugin to display a time-controlled information bar with a customizable message.",
   "type": "shopware-platform-plugin",
   "license": "MIT",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "authors": [
     {
       "name": "Actualize",
@@ -46,8 +46,8 @@
       "en-GB": "https://actualize.de"
     },
     "supportLink": {
-      "de-DE": "https://actualize.de",
-      "en-GB": "https://actualize.de"
+      "de-DE": "https://github.com/actualizer/ActInformationBar/issues",
+      "en-GB": "https://github.com/actualizer/ActInformationBar/issues"
     }
   }
 }
