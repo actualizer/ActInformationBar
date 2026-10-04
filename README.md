@@ -15,6 +15,8 @@ A Shopware 6 plugin that displays a customizable, time-controlled information ba
 - Customizable appearance per bar (colors, fonts, padding)
 - Colours are applied as CSS custom properties, so `theme:compile` is no longer needed after a
   colour change
+- The page cache follows the bar: saving a bar refreshes the cached storefront pages, and a
+  scheduled task refreshes them once a start or end date has passed
 - Optional call-to-action button
 - Full-width or container layout options
 - Responsive design
@@ -153,7 +155,12 @@ environment variable), and only uses `UTC` if neither yields a valid identifier.
 ## Technical Details
 
 ### Events Used
-- `GenericPageLoadedEvent` - Injects information bar data into page
+- `GenericPageLoadedEvent` - Injects information bar data into page and tags the page with the
+  HTTP cache tag `act-information-bar`
+- `EntityWrittenContainerEvent` - Invalidates that tag when a bar or one of its texts is written
+  or deleted
+- Scheduled task `act_information_bar.schedule_cache` (every 5 minutes) - Invalidates the tag
+  when the start or end date of an active bar has passed since the previous run
 
 ### Data Storage
 - `act_information_bar` with translations in `act_information_bar_translation`, one row per bar
@@ -264,11 +271,12 @@ button keeps its position while the lines rotate.
 - Very long messages may impact performance
 - Date/time evaluated against the timezone configured on the defaults page; if unset, it falls
   back to the server timezone and only uses `UTC` as a last resort
-- **A colour change is not instant on a live shop.** The bar sits in the storefront's main
-  document cache, not in the separately cached header fragment, and saving a bar does not
-  invalidate it. The new colour appears once the HTTP cache TTL expires, or right away after
-  `bin/console cache:pool:clear cache.http`. No `theme:compile` is needed either way — that is
-  the point of serving colours as CSS custom properties.
+- **Start and end dates take effect with a delay of up to about five minutes on a live shop.**
+  Cached pages only notice a passed start or end date when the scheduled task
+  `act_information_bar.schedule_cache` runs, so the shop's scheduled tasks and message queue
+  have to be running. Changes saved on a bar are visible right away.
+- **The bar is part of every storefront page.** Saving a bar, or a passing start or end date,
+  therefore refreshes the cached pages of all sales channels at once.
 - **Daylight saving transitions need care.** On a spring forward day one wall clock hour does
   not exist (02:00–02:59 in `Europe/Berlin`), and a start or end time inside it is silently
   moved forward by an hour. A window spanning exactly that missing hour collapses to zero

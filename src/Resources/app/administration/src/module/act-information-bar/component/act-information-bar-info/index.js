@@ -3,7 +3,7 @@ import './act-information-bar-info.scss';
 
 const { Component } = Shopware;
 
-const HOW_TO_ITEM_COUNT = 6;
+const HOW_TO_ITEM_COUNT = 7;
 
 Component.register('act-information-bar-info', {
     template,

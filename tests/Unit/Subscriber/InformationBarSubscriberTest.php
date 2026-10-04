@@ -8,14 +8,19 @@ use Act\InformationBar\Service\InformationBarText;
 use Act\InformationBar\Service\InformationBarTextLoader;
 use Act\InformationBar\Subscriber\InformationBarSubscriber;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoadedEvent;
 use Shopware\Storefront\Page\Page;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
 class InformationBarSubscriberTest extends TestCase
 {
+    /** @var list<string> */
+    private array $cacheTags = [];
+
     public function testValueContainingSemicolonIsRejected(): void
     {
         $bar = new InformationBarEntity();
@@ -165,6 +170,22 @@ class InformationBarSubscriberTest extends TestCase
 
         self::assertSame(0, $loader->calls);
         self::assertFalse($event->getPage()->hasExtension('actInformationBar'));
+        self::assertSame([], $this->cacheTags);
+    }
+
+    public function testPageWithABarCarriesTheCacheTag(): void
+    {
+        $result = new InformationBarResult(new InformationBarEntity(), new InformationBarText('Text'));
+        $this->dispatch($this->loaderReturning($result));
+
+        self::assertSame(['act-information-bar'], $this->cacheTags);
+    }
+
+    public function testPageWithoutABarCarriesTheCacheTagToo(): void
+    {
+        $this->dispatch($this->loaderReturning(null));
+
+        self::assertSame(['act-information-bar'], $this->cacheTags);
     }
 
     private function styleFor(InformationBarEntity $bar): string
@@ -206,7 +227,13 @@ class InformationBarSubscriberTest extends TestCase
         $page = new Page();
         $event = new GenericPageLoadedEvent($page, $this->createStub(SalesChannelContext::class), $request ?? Request::create('/'));
 
-        (new InformationBarSubscriber($loader))->onPageLoaded($event);
+        $this->cacheTags = [];
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addListener(AddCacheTagEvent::class, function (AddCacheTagEvent $tagEvent): void {
+            $this->cacheTags = [...$this->cacheTags, ...$tagEvent->tags];
+        });
+
+        (new InformationBarSubscriber($loader, $dispatcher))->onPageLoaded($event);
 
         return $event;
     }

@@ -6,7 +6,26 @@
     <services>
         <service id="Act\InformationBar\Subscriber\InformationBarSubscriber">
             <argument type="service" id="Act\InformationBar\Service\InformationBarTextLoader"/>
+            <argument type="service" id="event_dispatcher"/>
             <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Act\InformationBar\Subscriber\CacheInvalidationSubscriber">
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Act\InformationBar\ScheduledTask\ScheduleCacheTask">
+            <tag name="shopware.scheduled.task"/>
+        </service>
+
+        <service id="Act\InformationBar\ScheduledTask\ScheduleCacheTaskHandler">
+            <argument type="service" id="scheduled_task.repository"/>
+            <argument type="service" id="logger"/>
+            <argument type="service" id="Doctrine\DBAL\Connection"/>
+            <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
+            <argument type="service" id="clock"/>
+            <tag name="messenger.message_handler"/>
         </service>
 
         <service id="Act\InformationBar\Service\BarScheduleResolver"/>

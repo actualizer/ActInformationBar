@@ -20,7 +20,8 @@
                     "item3": "A bar without a period runs permanently. While a scheduled bar is active it takes over, and the permanent bar returns afterwards.",
                     "item4": "Texts per language: switch the language at the top of the detail page. If a translation is missing, the default language's text is shown.",
                     "item5": "Multiple lines in the message field are shown one after another.",
-                    "item6": "Colours and timezone for new bars: <strong>Information bars &gt; Defaults</strong>."
+                    "item6": "Colours and timezone for new bars: <strong>Information bars &gt; Defaults</strong>.",
+                    "item7": "Changes to a bar are visible in the shop right after saving. Start and end take effect within about five minutes — this requires Shopware's scheduled tasks to be running."
                 },
                 "description": "Displays a time-controlled information bar with a customizable message and optional button in the storefront.",
                 "openModuleLink": "Edit information bar messages",

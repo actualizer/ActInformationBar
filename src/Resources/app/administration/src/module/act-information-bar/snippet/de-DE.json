@@ -20,7 +20,8 @@
                     "item3": "Eine Leiste ohne Zeitraum läuft dauerhaft. Solange eine zeitgesteuerte Leiste aktiv ist, wird sie davon überdeckt und erscheint danach automatisch wieder.",
                     "item4": "Texte pro Sprache: die Sprache oben auf der Detailseite umschalten. Fehlt eine Übersetzung, erscheint der Text der Standardsprache.",
                     "item5": "Mehrere Zeilen im Nachrichtenfeld werden nacheinander eingeblendet.",
-                    "item6": "Farben und Zeitzone für neue Leisten: <strong>Informationsleisten &gt; Vorgaben</strong>."
+                    "item6": "Farben und Zeitzone für neue Leisten: <strong>Informationsleisten &gt; Vorgaben</strong>.",
+                    "item7": "Änderungen an einer Leiste sind nach dem Speichern sofort im Shop sichtbar. Start und Ende greifen innerhalb von etwa fünf Minuten — dafür müssen die geplanten Aufgaben von Shopware laufen."
                 },
                 "description": "Zeigt eine zeitgesteuerte Informationszeile mit anpassbarer Nachricht und optionalem Button im Storefront an.",
                 "openModuleLink": "Nachrichten der Informationsleiste bearbeiten",

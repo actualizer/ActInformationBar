@@ -3,15 +3,20 @@
 namespace Act\InformationBar\Subscriber;
 
 use Act\InformationBar\Content\InformationBar\InformationBarEntity;
+use Act\InformationBar\Service\InformationBarCacheTag;
 use Act\InformationBar\Service\InformationBarTextLoader;
+use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Storefront\Page\GenericPageLoadedEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class InformationBarSubscriber implements EventSubscriberInterface
 {
-    public function __construct(private readonly InformationBarTextLoader $textLoader)
-    {
+    public function __construct(
+        private readonly InformationBarTextLoader $textLoader,
+        private readonly EventDispatcherInterface $dispatcher,
+    ) {
     }
 
     public static function getSubscribedEvents(): array
@@ -26,6 +31,8 @@ class InformationBarSubscriber implements EventSubscriberInterface
         if ($event->getRequest()->isXmlHttpRequest()) {
             return;
         }
+
+        $this->dispatcher->dispatch(new AddCacheTagEvent(InformationBarCacheTag::TAG));
 
         $result = $this->textLoader->load($event->getSalesChannelContext());
 
