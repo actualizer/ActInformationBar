@@ -108,7 +108,6 @@ clock changes.
 - **Full Width**: Display bar across full browser width or within container
 - **Display Duration**: How long each message iteration displays (in seconds)
 - **Text Color**, **Background Color**: Bar colors (hex values)
-- **Button Corner Radius**: Rounding of the button corners in pixels
 - **Padding Top**, **Padding Bottom**: Padding in pixels
 - **Font Size**: Text size in pixels
 - **Show Button**: Enable/disable the CTA button
@@ -116,7 +115,24 @@ clock changes.
 - **Button Text Color**, **Button Text Color (Hover)**: Button text color
 - **Button Border Color**, **Button Border Color (Hover)**: Button border color
 - **Button Border Width**: Border thickness in pixels
+- **Button corner radius**: CSS length, e.g. `4px`, or `999px` for a pill shape. Empty = the
+  theme's button radius
 - **Button Background Color**, **Button Background Color (Hover)**: Button background color
+- **Countdown target**: Date and time the countdown counts down to, evaluated in the configured
+  timezone. Empty = no countdown (see Countdown below)
+- **Text after expiry**: Shown instead of the countdown once the target is reached. Empty = the
+  countdown block disappears. Same formatting rules as the message
+- **Digit colour**, **Label colour**: Colors of the digits and of the labels and colons. Empty = text color (labels slightly dimmed)
+- **Countdown font**: Theme font or Montserrat (shipped with the plugin, no external requests)
+
+Texts are translatable per language: if a language has no text of its own, the plugin falls
+back to the default language of the sales channel, then to the system default language, and
+only then to the global record — in that order. An empty message in one language therefore
+never makes the bar disappear. The message decides: the first record and language with a
+non-empty message supplies all translatable texts (message, expired text, button text, URL and
+title). Filling in only a button text while leaving the message of that language empty means
+the whole language is skipped and the button text is never shown. Appearance, schedule and the
+countdown target are not translatable — they belong to the bar, not to a language.
 
 #### Formatting
 
@@ -130,35 +146,29 @@ Known limit: size notations such as "<S> bis <XL>" look like tags (`<S>` becomes
 
 #### Countdown
 
-The countdown card on the detail page adds a countdown block to the bar:
+The countdown fields live in their own card on the detail page. The countdown block sits next
+to the rotating text and shows days, hours, minutes and seconds (the days cell is hidden below
+one day). The text stays mandatory: a bar without a message is not shown, even with a
+countdown target.
 
-- **Target**: Date and time, evaluated in the shop timezone. The countdown is optional; without
-  a target the bar looks as before
-- **Expired text**: Shown instead of the countdown once the target is reached (per language)
-- **Number colour**, **Label colour**: Colours of the countdown digits and labels
-- **Font**: Theme font or Montserrat (hosted locally in the plugin, no external requests)
+The card warns if the target lies before the start date, if no end date is set, or if the
+message is empty. Set the end date to the countdown target, otherwise the bar comes back with
+an expired countdown once a later bar ends.
 
-The card reminds you to set the bar's end date as well, so the bar does not stay up after the
-event. The "Create event bar" button at the end of the countdown card copies the saved bar into a new one that starts at the countdown
-target, with no end date and no countdown target; it is disabled while there are unsaved changes.
+"Create event bar" at the end of the countdown card copies the saved bar into a new one that
+starts at the countdown target, with no end date and no countdown target. It is disabled while
+there are unsaved changes. Set the end date in the copy right away — without it the event bar
+runs indefinitely.
 
 The live preview on the detail page is an approximation of the storefront rendering; the
 final look depends on the theme.
 
-Texts are translatable per language: if a language has no text of its own, the plugin falls
-back to the default language of the sales channel, then to the system default language, and
-only then to the global record — in that order. An empty message in one language therefore
-never makes the bar disappear. The message decides: the first record and language with a
-non-empty message supplies all four texts. Filling in only a button text while leaving the
-message of that language empty means the whole language is skipped and the button text is
-never shown. Appearance and schedule are not translatable — they belong to the bar, not to a
-language.
-
 #### Defaults
 
 The defaults page (Content → Information bar → Defaults) holds the values that are
-copied into a bar when it is created — the same appearance fields listed above, plus the
-timezone. It does not affect existing bars; changing a default only changes what a newly
+copied into a bar when it is created — the same appearance fields listed above (including
+button corner radius, digit and label colour and countdown font, but not the countdown target
+or the text after expiry), plus the timezone. It does not affect existing bars; changing a default only changes what a newly
 created bar starts out with.
 
 The timezone setting is the shop's timezone for evaluating start and end dates, independent of
@@ -265,7 +275,7 @@ Bar 1 (countdown):
 ```
 Message: "<b>Black Friday</b> starts in"
 Countdown Target: 2026-11-27 00:00:00
-Expired text: "Now live!"
+Text after expiry: "Now live!"
 Start Date: 2026-11-20 00:00:00
 End Date: 2026-11-27 00:00:00
 Show Button: Yes
@@ -347,6 +357,11 @@ button keeps its position while the lines rotate.
   proceeds. Schedule around a transition by picking a time outside the affected hour.
 
 ## Changelog
+
+### 1.7.1
+
+- README: the configuration options now list the countdown fields and the button corner radius,
+  and the Black Friday example shows the countdown bar and the event bar.
 
 ### 1.7.0
 
