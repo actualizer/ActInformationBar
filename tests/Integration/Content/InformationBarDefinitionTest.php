@@ -87,4 +87,35 @@ class InformationBarDefinitionTest extends TestCase
         self::assertTrue($bar->getShowButton());
         self::assertSame(5, $bar->getDisplayDuration());
     }
+
+    public function testCountdownFieldsRoundTrip(): void
+    {
+        /** @var EntityRepository $repository */
+        $repository = static::getContainer()->get('act_information_bar.repository');
+        $id = Uuid::randomHex();
+        $context = Context::createCLIContext();
+
+        $repository->create([[
+            'id' => $id,
+            'name' => 'Event',
+            'countdownTarget' => '2026-11-26T23:00:00+00:00',
+            'countdownColor' => '#ff0000',
+            'countdownLabelColor' => '#00ff00',
+            'countdownFont' => 'montserrat',
+            'buttonBorderRadius' => '8px',
+            'translations' => [
+                Defaults::LANGUAGE_SYSTEM => ['message' => 'Black Friday', 'countdownExpiredText' => 'Jetzt live'],
+            ],
+        ]], $context);
+
+        $bar = $repository->search(new Criteria([$id]), $context)->getEntities()->first();
+
+        self::assertNotNull($bar);
+        self::assertSame('2026-11-26 23:00:00', $bar->getCountdownTarget()?->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d H:i:s'));
+        self::assertSame('#ff0000', $bar->getCountdownColor());
+        self::assertSame('#00ff00', $bar->getCountdownLabelColor());
+        self::assertSame('montserrat', $bar->getCountdownFont());
+        self::assertSame('8px', $bar->getButtonBorderRadius());
+        self::assertSame('Jetzt live', $bar->getTranslation('countdownExpiredText'));
+    }
 }

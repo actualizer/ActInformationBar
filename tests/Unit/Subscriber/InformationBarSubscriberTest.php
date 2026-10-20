@@ -5,7 +5,9 @@ namespace Act\InformationBar\Tests\Unit\Subscriber;
 use Act\InformationBar\Content\InformationBar\InformationBarEntity;
 use Act\InformationBar\Service\InformationBarResult;
 use Act\InformationBar\Service\InformationBarText;
+use Act\InformationBar\Service\Countdown\CountdownViewFactory;
 use Act\InformationBar\Service\InformationBarTextLoader;
+use Act\InformationBar\Service\Text\BarTextFilter;
 use Act\InformationBar\Subscriber\InformationBarSubscriber;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
@@ -13,6 +15,7 @@ use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Page\GenericPageLoadedEvent;
 use Shopware\Storefront\Page\Page;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -188,6 +191,83 @@ class InformationBarSubscriberTest extends TestCase
         self::assertSame(['act-information-bar'], $this->cacheTags);
     }
 
+    public function testLinesAreFilteredPerLine(): void
+    {
+        $data = $this->dataFor(new InformationBarEntity(), new InformationBarText("<b>A\nB<script>"));
+
+        self::assertSame(['<b>A</b>', 'B&lt;script&gt;'], $data['lines']);
+    }
+
+    public function testButtonTextIsCleanedOfInvisibles(): void
+    {
+        $data = $this->dataFor(new InformationBarEntity(), new InformationBarText('Text', "Mehr\u{200B}\u{00AD}", "Ti\u{200B}tel"));
+
+        self::assertSame('Mehr', $data['buttonText']);
+        self::assertSame('Titel', $data['buttonTitle']);
+    }
+
+    public function testCountdownFontFallsBackToTheme(): void
+    {
+        foreach ([null, '', 'comic'] as $font) {
+            $bar = new InformationBarEntity();
+            $bar->setCountdownFont($font);
+
+            self::assertSame('theme', $this->dataFor($bar)['countdownFont']);
+        }
+
+        $bar = new InformationBarEntity();
+        $bar->setCountdownFont('montserrat');
+
+        self::assertSame('montserrat', $this->dataFor($bar)['countdownFont']);
+    }
+
+    public function testCountdownIsNullWithoutTarget(): void
+    {
+        self::assertNull($this->dataFor(new InformationBarEntity())['countdown']);
+    }
+
+    public function testCountdownViewIsExposedWithTarget(): void
+    {
+        $bar = new InformationBarEntity();
+        $bar->setCountdownTarget(new \DateTimeImmutable('2026-11-26 23:00:00', new \DateTimeZone('UTC')));
+
+        $countdown = $this->dataFor($bar)['countdown'];
+
+        self::assertInstanceOf(\Act\InformationBar\Service\Countdown\CountdownView::class, $countdown);
+        self::assertFalse($countdown->expired);
+    }
+
+    public function testNewCustomPropertiesAreEmitted(): void
+    {
+        $bar = new InformationBarEntity();
+        $bar->setButtonBorderRadius('999');
+        $bar->setCountdownColor('red;x');
+
+        $style = $this->styleFor($bar);
+
+        self::assertStringContainsString('--act-bar-btn-radius: 999px', $style);
+        self::assertStringNotContainsString('--act-bar-countdown-color', $style);
+        self::assertStringNotContainsString('--act-bar-countdown-label-opacity', $style);
+
+        $bar->setCountdownColor('#123456');
+        $bar->setCountdownLabelColor('#abcdef');
+        $style = $this->styleFor($bar);
+
+        self::assertStringContainsString('--act-bar-countdown-color: #123456', $style);
+        self::assertStringContainsString('--act-bar-countdown-label-color: #abcdef', $style);
+        self::assertStringContainsString('--act-bar-countdown-label-opacity: 1', $style);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function dataFor(InformationBarEntity $bar, ?InformationBarText $text = null): array
+    {
+        $result = new InformationBarResult($bar, $text ?? new InformationBarText('Text'));
+
+        return $this->extensionData($this->dispatch($this->loaderReturning($result)));
+    }
+
     private function styleFor(InformationBarEntity $bar): string
     {
         $result = new InformationBarResult($bar, new InformationBarText('Text'));
@@ -233,7 +313,7 @@ class InformationBarSubscriberTest extends TestCase
             $this->cacheTags = [...$this->cacheTags, ...$tagEvent->tags];
         });
 
-        (new InformationBarSubscriber($loader, $dispatcher))->onPageLoaded($event);
+        (new InformationBarSubscriber($loader, $dispatcher, new BarTextFilter(), new CountdownViewFactory(new BarTextFilter()), new MockClock('2026-10-20 12:00:00')))->onPageLoaded($event);
 
         return $event;
     }

@@ -1,0 +1,193 @@
+// The admin cannot import the storefront SCSS, so the bar rules are copied from
+// storefront/src/scss/base.scss and scoped under the preview root. Keep both in sync.
+$act-preview-fade-duration: 500ms;
+$act-preview-countdown-num-size: 1.75em;
+$act-preview-countdown-label-size: max(12px, .8em);
+$act-preview-countdown-label-line-height: 1.2;
+$act-preview-countdown-colon-size: 1.6em;
+$act-preview-countdown-label-opacity: .75;
+
+.act-information-bar-preview {
+    // Sticks to the top of the scrolling sw-card-view, whose content area has 40px top padding.
+    position: sticky;
+    top: -40px;
+    z-index: 10;
+    max-width: 960px;
+    margin: 0 auto 20px;
+    max-height: 40vh;
+    overflow: auto;
+    border: 1px solid var(--color-border-primary-default);
+    border-radius: 8px;
+    background: var(--color-elevation-surface-raised);
+
+    &__hint {
+        margin: 0;
+        padding: 8px 16px;
+        font-size: var(--font-size-xs);
+        color: var(--color-text-secondary-default);
+    }
+
+    .container {
+        width: 100%;
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    // Without "full width" only the inner container carries the colours, as in the storefront.
+    .act-info-bar:not(.act-info-bar-full-width) .container {
+        max-width: 720px;
+        margin: 0 auto;
+    }
+
+    .act-info-bar {
+        font-size: var(--act-bar-font-size, 14px);
+        line-height: 1.5;
+
+        &-content,
+        &-full-width {
+            background-color: var(--act-bar-bg, #000000);
+            color: var(--act-bar-text, #FFFFFF);
+            padding-top: var(--act-bar-padding-top, 15px);
+            padding-bottom: var(--act-bar-padding-bottom, 15px);
+        }
+
+        &-inner {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem 1rem;
+        }
+    }
+
+    .act-info-message-container {
+        display: grid;
+        max-width: 100%;
+        text-align: center;
+
+        .act-info-message {
+            grid-row: 1;
+            grid-column: 1;
+            opacity: 0;
+            transition: opacity $act-preview-fade-duration ease;
+
+            &.is-active {
+                opacity: 1;
+            }
+        }
+    }
+
+    .act-info-message mark,
+    .act-info-countdown-expired mark {
+        background: none;
+        padding: 0;
+    }
+
+    .act-info-message mark {
+        color: var(--act-bar-countdown-color, inherit);
+        font-weight: 700;
+    }
+
+    // Expired text already uses the countdown colour; use the bar text colour for the highlight.
+    .act-info-countdown-expired mark {
+        color: var(--act-bar-text, #FFFFFF);
+        font-weight: inherit;
+    }
+
+    .act-information-bar-button {
+        display: inline-block;
+        padding: .375rem .75rem;
+        line-height: 1.5;
+        color: var(--act-bar-btn-text, #FFFFFF);
+        border-color: var(--act-bar-btn-border, #FFFFFF);
+        border-width: var(--act-bar-btn-border-width, 1px);
+        border-style: solid;
+        font-size: var(--act-bar-font-size, 14px);
+        background-color: var(--act-bar-btn-bg, transparent);
+        // Square by default, like the standard theme; a merchant radius is applied below.
+        border-radius: 0;
+
+        &.has-custom-radius {
+            border-radius: var(--act-bar-btn-radius);
+        }
+    }
+
+    .act-info-countdown {
+        display: grid;
+        justify-items: center;
+        align-items: center;
+        max-width: 100%;
+        min-height: calc(#{$act-preview-countdown-num-size} + #{$act-preview-countdown-label-size} * #{$act-preview-countdown-label-line-height});
+
+        &--montserrat {
+            font-family: 'ActInformationBarMontserrat', var(--font-family-body, sans-serif);
+        }
+
+        &[hidden],
+        [hidden] {
+            display: none !important;
+        }
+
+        &.is-expired .act-info-countdown-cells {
+            visibility: hidden;
+        }
+    }
+
+    .act-info-countdown-cells,
+    .act-info-countdown-expired {
+        grid-row: 1;
+        grid-column: 1;
+    }
+
+    .act-info-countdown-cells {
+        display: inline-flex;
+        align-items: flex-start;
+        justify-content: center;
+        gap: .35em;
+    }
+
+    .act-info-countdown-cell {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .act-info-countdown-num {
+        font-size: $act-preview-countdown-num-size;
+        font-weight: 800;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+        min-width: 2ch;
+        text-align: center;
+        color: var(--act-bar-countdown-color, inherit);
+    }
+
+    .act-info-countdown-label {
+        font-size: $act-preview-countdown-label-size;
+        line-height: $act-preview-countdown-label-line-height;
+        text-transform: uppercase;
+        letter-spacing: .12em;
+        color: var(--act-bar-countdown-label-color, currentColor);
+        opacity: var(--act-bar-countdown-label-opacity, #{$act-preview-countdown-label-opacity});
+    }
+
+    .act-info-countdown-colon {
+        font-size: $act-preview-countdown-colon-size;
+        font-weight: 700;
+        line-height: 1;
+        color: var(--act-bar-countdown-label-color, currentColor);
+        opacity: var(--act-bar-countdown-label-opacity, #{$act-preview-countdown-label-opacity});
+    }
+
+    .act-info-countdown-expired {
+        font-size: $act-preview-countdown-num-size;
+        font-weight: 800;
+        color: var(--act-bar-countdown-color, inherit);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .act-information-bar-preview .act-info-message-container .act-info-message {
+        transition: none;
+    }
+}

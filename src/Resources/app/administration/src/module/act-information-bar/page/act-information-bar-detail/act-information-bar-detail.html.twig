@@ -16,6 +16,7 @@
     <template #smart-bar-actions>
         <mt-button
             variant="primary"
+            size="default"
             :is-loading="isSaving"
             v-tooltip="saveButtonTooltip"
             :disabled="!acl.can('act_information_bar.editor') || undefined"
@@ -29,6 +30,10 @@
     {% block act_information_bar_detail_content %}
     <template #content>
         <sw-card-view>
+            {% block act_information_bar_detail_preview %}
+            <act-information-bar-preview v-if="bar" :bar="bar" @update:warnings="onPreviewWarnings" />
+            {% endblock %}
+
             {% block act_information_bar_detail_general_card %}
             <mt-card :title="$tc('actInformationBar.detail.generalCardTitle')" :is-loading="isLoading">
                 <!-- bar and timezone resolve as two independent promises inside the same
@@ -36,6 +41,12 @@
                      the datepickers below from ever mounting against the stale initial 'UTC'
                      default before the real shop timezone has arrived. -->
                 <template v-if="bar && !isLoading">
+                    {% block act_information_bar_detail_event_copy_hint %}
+                    <mt-banner v-if="$route.query.eventCopy === '1' && !bar.endDate" variant="attention">
+                        {{ $tc('actInformationBar.detail.eventCopyHint') }}
+                    </mt-banner>
+                    {% endblock %}
+
                     {% block act_information_bar_detail_field_name %}
                     <mt-text-field
                         name="sw-field--act-information-bar-name"
@@ -102,10 +113,25 @@
                     <mt-textarea
                         name="sw-field--act-information-bar-message"
                         :label="$tc('actInformationBar.detail.messageLabel')"
-                        :help-text="$tc('actInformationBar.detail.messageHelpText')"
                         :model-value="bar.message"
                         @update:model-value="onFieldInput('message', $event)"
                     />
+                    {% endblock %}
+
+                    {% block act_information_bar_detail_message_hint %}
+                    <mt-banner variant="info">
+                        {{ $tc('actInformationBar.detail.messageHint') }}
+                    </mt-banner>
+                    {% endblock %}
+
+                    {% block act_information_bar_detail_message_warnings %}
+                    <div role="status">
+                        <mt-banner v-if="messageWarningTexts.length" variant="attention">
+                            <ul class="act-information-bar-detail__warning-list">
+                                <li v-for="(text, index) in messageWarningTexts" :key="index">{{ text }}</li>
+                            </ul>
+                        </mt-banner>
+                    </div>
                     {% endblock %}
 
                     {% block act_information_bar_detail_field_button_text %}
@@ -133,6 +159,108 @@
                         :model-value="bar.buttonTitle"
                         @update:model-value="onFieldInput('buttonTitle', $event)"
                     />
+                    {% endblock %}
+                </template>
+            </mt-card>
+            {% endblock %}
+
+            {% block act_information_bar_detail_countdown_card %}
+            <mt-card :title="$tc('actInformationBar.detail.countdownCardTitle')" :is-loading="isLoading">
+                <template v-if="bar && !isLoading">
+                    {% block act_information_bar_detail_countdown_warnings %}
+                    <div role="status">
+                        <mt-banner v-for="warning in countdownWarnings" :key="warning" variant="attention">
+                            {{ warning }}
+                        </mt-banner>
+                    </div>
+                    {% endblock %}
+
+                    {% block act_information_bar_detail_field_countdown_target %}
+                    <mt-datepicker
+                        class="act-information-bar-detail__field-spaced"
+                        name="sw-field--act-information-bar-countdown-target"
+                        date-type="datetime"
+                        :label="$tc('actInformationBar.detail.countdownTargetLabel')"
+                        :help-text="$t('actInformationBar.detail.timezoneHint', { timezone: timezone })"
+                        :time-zone="timezone"
+                        :model-value="bar.countdownTarget"
+                        @update:model-value="onFieldInput('countdownTarget', $event)"
+                    />
+                    {% endblock %}
+
+                    {% block act_information_bar_detail_field_countdown_expired_text %}
+                    <mt-text-field
+                        name="sw-field--act-information-bar-countdown-expired-text"
+                        :label="$tc('actInformationBar.detail.countdownExpiredTextLabel')"
+                        :help-text="$tc('actInformationBar.detail.countdownExpiredTextHelp')"
+                        :model-value="bar.countdownExpiredText"
+                        @update:model-value="onFieldInput('countdownExpiredText', $event)"
+                    />
+                    {% endblock %}
+
+                    {% block act_information_bar_detail_countdown_expired_text_warnings %}
+                    <div role="status">
+                        <mt-banner v-if="expiredTextWarningTexts.length" variant="attention">
+                            <ul class="act-information-bar-detail__warning-list">
+                                <li v-for="(text, index) in expiredTextWarningTexts" :key="index">{{ text }}</li>
+                            </ul>
+                        </mt-banner>
+                    </div>
+                    {% endblock %}
+
+                    {% block act_information_bar_detail_field_group_countdown_colors %}
+                    <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0px 30px">
+                        {% block act_information_bar_detail_field_countdown_color %}
+                        <mt-colorpicker
+                            name="sw-field--act-information-bar-countdown-color"
+                            :label="$tc('actInformationBar.detail.countdownColorLabel')"
+                            :model-value="bar.countdownColor"
+                            @update:model-value="onFieldInput('countdownColor', $event)"
+                        />
+                        {% endblock %}
+
+                        {% block act_information_bar_detail_field_countdown_label_color %}
+                        <mt-colorpicker
+                            name="sw-field--act-information-bar-countdown-label-color"
+                            :label="$tc('actInformationBar.detail.countdownLabelColorLabel')"
+                            :model-value="bar.countdownLabelColor"
+                            @update:model-value="onFieldInput('countdownLabelColor', $event)"
+                        />
+                        {% endblock %}
+                    </sw-container>
+                    {% endblock %}
+
+                    {% block act_information_bar_detail_field_countdown_font %}
+                    <mt-select
+                        name="sw-field--act-information-bar-countdown-font"
+                        :label="$tc('actInformationBar.detail.countdownFontLabel')"
+                        :options="countdownFontOptions"
+                        :model-value="bar.countdownFont ?? 'theme'"
+                        @update:model-value="onFieldInput('countdownFont', $event)"
+                    />
+                    {% endblock %}
+
+                    {% block act_information_bar_detail_countdown_event_copy %}
+                    <div class="act-information-bar-detail__event-copy">
+                        <p id="act-information-bar-event-copy-explanation" class="act-information-bar-detail__event-copy-text">
+                            {{ $tc('actInformationBar.detail.eventCopyExplanation') }}
+                        </p>
+                        <mt-button
+                            variant="secondary"
+                            size="small"
+                            :is-loading="isCreatingEvent"
+                            :disabled="!!eventCopyDisabledReason() || undefined"
+                            :aria-describedby="eventCopyDisabledReason() ? 'act-information-bar-event-copy-explanation act-information-bar-event-copy-reason' : 'act-information-bar-event-copy-explanation'"
+                            @click="onCreateEventCopy"
+                        >
+                            {{ $tc('actInformationBar.detail.eventCopyButton') }}
+                        </mt-button>
+                        <p
+                            v-if="eventCopyDisabledReason()"
+                            id="act-information-bar-event-copy-reason"
+                            class="act-information-bar-detail__event-copy-reason"
+                        >{{ eventCopyDisabledReason() }}</p>
+                    </div>
                     {% endblock %}
                 </template>
             </mt-card>
@@ -301,6 +429,16 @@
                         :label="$tc('actInformationBar.detail.buttonBorderWidthLabel')"
                         :model-value="bar.buttonBorderWidth"
                         @update:model-value="onFieldInput('buttonBorderWidth', $event)"
+                    />
+                    {% endblock %}
+
+                    {% block act_information_bar_detail_field_button_border_radius %}
+                    <mt-text-field
+                        name="sw-field--act-information-bar-button-border-radius"
+                        :label="$tc('actInformationBar.detail.buttonBorderRadiusLabel')"
+                        :help-text="$tc('actInformationBar.detail.buttonBorderRadiusHelp')"
+                        :model-value="bar.buttonBorderRadius"
+                        @update:model-value="onFieldInput('buttonBorderRadius', $event)"
                     />
                     {% endblock %}
 

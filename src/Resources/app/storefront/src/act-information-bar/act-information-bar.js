@@ -15,39 +15,13 @@ export default class ActInformationBar extends Plugin {
             return;
         }
 
-        this.message = this.messageContainer.dataset.message || '';
         this.duration = parseInt(this.messageContainer.dataset.duration || '3') * 1000;
-        this.lines = this.message.split('\n').filter(line => line.trim() !== '');
+        this.lineElements = Array.from(this.messageContainer.querySelectorAll('.' + this.options.lineClass));
         this.currentLineIndex = 0;
 
-        if (this.lines.length === 0) {
-            return;
-        }
-
-        this.renderLines();
-
-        if (this.lines.length > 1) {
+        if (this.lineElements.length > 1) {
             this.timeout = setTimeout(() => this.showNextLine(), this.duration);
         }
-    }
-
-    /**
-     * Render every line once. They are stacked on top of each other by CSS, so
-     * the container keeps the width of the longest line and neighbouring
-     * elements (the button) do not move while the lines rotate.
-     */
-    renderLines() {
-        this.messageContainer.innerHTML = '';
-
-        this.lineElements = this.lines.map((line, index) => {
-            const lineElement = document.createElement('div');
-            lineElement.className = this.options.lineClass;
-            lineElement.textContent = line;
-            this.messageContainer.appendChild(lineElement);
-            this.setLineActive(lineElement, index === 0);
-
-            return lineElement;
-        });
     }
 
     setLineActive(lineElement, active) {
@@ -61,7 +35,7 @@ export default class ActInformationBar extends Plugin {
         this.setLineActive(this.lineElements[this.currentLineIndex], false);
 
         this.timeout = setTimeout(() => {
-            this.currentLineIndex = (this.currentLineIndex + 1) % this.lines.length;
+            this.currentLineIndex = (this.currentLineIndex + 1) % this.lineElements.length;
             this.setLineActive(this.lineElements[this.currentLineIndex], true);
 
             this.timeout = setTimeout(() => this.showNextLine(), this.duration);

@@ -22,6 +22,8 @@ class InformationBarTranslationEntity extends TranslationEntity
 
     protected ?string $buttonUrl = null;
 
+    protected ?string $countdownExpiredText = null;
+
     protected string $actInformationBarId;
 
     public function getMessage(): ?string
@@ -62,6 +64,16 @@ class InformationBarTranslationEntity extends TranslationEntity
     public function setButtonUrl(?string $buttonUrl): void
     {
         $this->buttonUrl = $buttonUrl;
+    }
+
+    public function getCountdownExpiredText(): ?string
+    {
+        return $this->countdownExpiredText;
+    }
+
+    public function setCountdownExpiredText(?string $countdownExpiredText): void
+    {
+        $this->countdownExpiredText = $countdownExpiredText;
     }
 
     public function getActInformationBarId(): string

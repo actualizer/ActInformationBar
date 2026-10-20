@@ -3,8 +3,11 @@
 namespace Act\InformationBar\Subscriber;
 
 use Act\InformationBar\Content\InformationBar\InformationBarEntity;
+use Act\InformationBar\Service\Countdown\CountdownViewFactory;
 use Act\InformationBar\Service\InformationBarCacheTag;
 use Act\InformationBar\Service\InformationBarTextLoader;
+use Act\InformationBar\Service\Text\BarTextFilter;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Storefront\Page\GenericPageLoadedEvent;
@@ -16,6 +19,9 @@ class InformationBarSubscriber implements EventSubscriberInterface
     public function __construct(
         private readonly InformationBarTextLoader $textLoader,
         private readonly EventDispatcherInterface $dispatcher,
+        private readonly BarTextFilter $textFilter,
+        private readonly CountdownViewFactory $countdownViewFactory,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -46,15 +52,19 @@ class InformationBarSubscriber implements EventSubscriberInterface
 
         $event->getPage()->addExtension('actInformationBar', new ArrayStruct([
             'show' => true,
+            // Kept for themes reading the old key; the own template renders only 'lines'.
             'message' => $result->text->message ?? '',
-            'buttonText' => $result->text->buttonText ?? '',
-            'buttonTitle' => $result->text->buttonTitle ?? '',
+            'lines' => $this->textFilter->filterMessage($result->text->message ?? '')->lines,
+            'buttonText' => $this->textFilter->cleanPlain($result->text->buttonText ?? ''),
+            'buttonTitle' => $this->textFilter->cleanPlain($result->text->buttonTitle ?? ''),
             'buttonUrl' => $result->text->buttonUrl ?? '',
             'displayDuration' => $bar->getDisplayDuration(),
             'fullWidth' => $bar->getFullWidth(),
             'showButton' => $bar->getShowButton(),
             'buttonTarget' => $bar->getButtonTarget(),
             'style' => $this->buildStyle($bar),
+            'countdown' => $this->countdownViewFactory->create($bar, $result->text, $this->clock->now()),
+            'countdownFont' => $bar->getCountdownFont() === 'montserrat' ? 'montserrat' : 'theme',
         ]));
     }
 
@@ -77,6 +87,9 @@ class InformationBarSubscriber implements EventSubscriberInterface
             '--act-bar-btn-border-width' => $bar->getButtonBorderWidth(),
             '--act-bar-btn-bg' => $bar->getButtonBackgroundColor(),
             '--act-bar-btn-bg-hover' => $bar->getButtonBackgroundColorHover(),
+            '--act-bar-btn-radius' => $bar->getButtonBorderRadius(),
+            '--act-bar-countdown-color' => $bar->getCountdownColor(),
+            '--act-bar-countdown-label-color' => $bar->getCountdownLabelColor(),
         ];
 
         $output = [];
@@ -99,6 +112,11 @@ class InformationBarSubscriber implements EventSubscriberInterface
             }
 
             $output[] = $property . ': ' . $value;
+        }
+
+        // Without an explicit label colour the SCSS default (muted opacity) applies.
+        if (array_filter($output, static fn (string $d): bool => str_starts_with($d, '--act-bar-countdown-label-color:')) !== []) {
+            $output[] = '--act-bar-countdown-label-opacity: 1';
         }
 
         return implode('; ', $output);

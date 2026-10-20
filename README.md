@@ -23,6 +23,11 @@ A Shopware 6 plugin that displays a customizable, time-controlled information ba
 - AJAX request awareness (no display on AJAX calls)
 - Accessibility: hidden lines are excluded from screen readers, new-window links are announced as such, and the fade respects reduced-motion preferences
 - Bars can be duplicated
+- Optional countdown block per bar (target date, own text once expired, number/label colour,
+  Theme or locally hosted Montserrat font)
+- Inline formatting in messages (`<b>`, `<i>`, ...) and emojis
+- "Create event bar" button in the countdown card that copies a bar as a starting point for a time-limited event
+- Live preview of the bar on the detail page
 - ACL privileges (`act_information_bar` with viewer/editor/creator/deleter roles)
 - Multi-language admin interface (German & English)
 - Compatible with Shopware 6.7
@@ -96,12 +101,14 @@ clock changes.
 - **Sales Channel**: The sales channel the bar applies to, or "All Sales Channels"
 - **Start Date / End Date**: The bar's schedule, evaluated against the configured timezone (see
   Defaults below). Leave both empty for permanent display
-- **Message**: The text to display, one line per rotation (plain text - HTML is not rendered)
+- **Message**: The text to display, one line per rotation. A small set of formatting tags and
+  emojis is allowed (see Formatting below)
 - **Button Text**, **Button URL**, **Button Title**: Optional call-to-action button; it is only
   rendered when both text and URL are set
 - **Full Width**: Display bar across full browser width or within container
 - **Display Duration**: How long each message iteration displays (in seconds)
 - **Text Color**, **Background Color**: Bar colors (hex values)
+- **Button Corner Radius**: Rounding of the button corners in pixels
 - **Padding Top**, **Padding Bottom**: Padding in pixels
 - **Font Size**: Text size in pixels
 - **Show Button**: Enable/disable the CTA button
@@ -110,6 +117,33 @@ clock changes.
 - **Button Border Color**, **Button Border Color (Hover)**: Button border color
 - **Button Border Width**: Border thickness in pixels
 - **Button Background Color**, **Button Background Color (Hover)**: Button background color
+
+#### Formatting
+
+Messages and the expired text may contain the tags `<b> <strong> <i> <em> <u> <s> <mark>`,
+without attributes. Everything else is removed on save; the admin warns before saving. A lone
+`<` or `>` stays as it is. Emojis (including combined ones) are allowed. Button text and
+button title are plain text: tags are stripped there.
+
+Known limit: size notations such as "<S> bis <XL>" look like tags (`<S>` becomes strikethrough,
+`<XL>` is removed). Write "(S) bis (XL)" instead.
+
+#### Countdown
+
+The countdown card on the detail page adds a countdown block to the bar:
+
+- **Target**: Date and time, evaluated in the shop timezone. The countdown is optional; without
+  a target the bar looks as before
+- **Expired text**: Shown instead of the countdown once the target is reached (per language)
+- **Number colour**, **Label colour**: Colours of the countdown digits and labels
+- **Font**: Theme font or Montserrat (hosted locally in the plugin, no external requests)
+
+The card reminds you to set the bar's end date as well, so the bar does not stay up after the
+event. The "Create event bar" button at the end of the countdown card copies the saved bar into a new one that starts at the countdown
+target, with no end date and no countdown target; it is disabled while there are unsaved changes.
+
+The live preview on the detail page is an approximation of the storefront rendering; the
+final look depends on the theme.
 
 Texts are translatable per language: if a language has no text of its own, the plugin falls
 back to the default language of the sales channel, then to the system default language, and
@@ -208,8 +242,8 @@ Text Color: #ffffff
 ### Time-Limited Sale
 ```
 Message: "Black Friday Sale - 30% off everything!"
-Start Date: 2024-11-29 00:00:00
-End Date: 2024-11-29 23:59:59
+Start Date: 2026-11-27 00:00:00
+End Date: 2026-11-27 23:59:59
 Show Button: Yes
 Button Text: "Shop Now"
 Button URL: /sale
@@ -220,9 +254,36 @@ Button URL: /sale
 Message: "Scheduled maintenance on Sunday 2am-4am"
 Background: #ffc107
 Text Color: #000000
-Start Date: 2024-03-01 00:00:00
-End Date: 2024-03-03 04:00:00
+Start Date: 2026-02-27 00:00:00
+End Date: 2026-03-01 04:00:00
 ```
+
+### Black Friday with Countdown
+Two bars: the first counts down to the start of the sale, the second runs during the sale.
+
+Bar 1 (countdown):
+```
+Message: "<b>Black Friday</b> starts in"
+Countdown Target: 2026-11-27 00:00:00
+Expired text: "Now live!"
+Start Date: 2026-11-20 00:00:00
+End Date: 2026-11-27 00:00:00
+Show Button: Yes
+Button Text: "Wishlist"
+Button URL: /wishlist
+```
+
+Bar 2 (event), created with "Create event bar" in the countdown card of bar 1:
+```
+Message: "<b>Black Friday</b> - <mark>30 %</mark> off everything!"
+Start Date: 2026-11-27 00:00:00
+End Date: 2026-11-30 23:59:59
+Show Button: Yes
+Button Text: "Shop Now"
+Button URL: /sale
+```
+Bar 2 starts later than bar 1, so it takes over at the countdown target. "Now live!" bridges
+the time until the page cache is refreshed (at most 5 minutes).
 
 ### Multiple Rotating Lines
 ```
@@ -267,7 +328,7 @@ button keeps its position while the lines rotate.
 - **Appearance is not translatable.** Every language of a bar therefore shares one appearance;
   only the texts differ. The appearance fields on the detail page are unaffected by the
   language switch for that reason.
-- Messages are plain text; HTML markup is not rendered
+- Messages allow only a few inline formatting tags (see Formatting); other markup is removed on save
 - Very long messages may impact performance
 - Date/time evaluated against the timezone configured on the defaults page; if unset, it falls
   back to the server timezone and only uses `UTC` as a last resort
@@ -285,13 +346,31 @@ button keeps its position while the lines rotate.
   when the end date is not after the start date; both warnings are advisory and saving
   proceeds. Schedule around a transition by picking a time outside the affected hour.
 
+## Changelog
+
+### 1.7.0
+
+- Countdown, inline formatting, emojis, button corner radius, event bars and live preview (see above).
+- Message lines are now rendered in Twig. Check template overrides of
+  `act-information-bar.html.twig`.
+- On update, a one-time cleanup removes all tags that are not allowed from stored texts (the text
+  in between stays); allowed tags in old data now render as formatting. A fresh install runs the
+  same cleanup.
+- Theme developers: `data-message` is removed from the bar and the JS no longer builds the lines.
+  An old override of `act-information-bar.html.twig` that relies on it shows an empty bar; adapt
+  it to `actInformationBar.lines`. `actInformationBar.message` is the cleaned database value and
+  may contain the inline tags (it is not escaped for output; use `lines`).
+- With a countdown the bar becomes taller. Check customer themes with a sticky header.
+- List "Duplicate" now really resets the schedule of the copy.
+- Smart-bar buttons now have the standard admin size.
+
 ## Support
 
 For issues and feature requests, please use the GitHub issue tracker.
 
 ## License
 
-This plugin is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Licensed under MIT, except the Montserrat font files in `src/Resources/public/fonts/`, which are licensed under the SIL Open Font License 1.1 (see `OFL.txt` there). See the [LICENSE](LICENSE) file for the MIT text.
 
 ## Credits
 

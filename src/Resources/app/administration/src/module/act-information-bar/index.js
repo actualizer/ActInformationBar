@@ -1,4 +1,5 @@
 import './component/act-information-bar-info';
+import './component/act-information-bar-preview';
 import './page/act-information-bar-defaults';
 import './page/act-information-bar-detail';
 import './page/act-information-bar-list';

@@ -71,10 +71,17 @@ class InformationBarDefinition extends EntityDefinition
             (new StringField('button_background_color', 'buttonBackgroundColor'))->addFlags(new ApiAware()),
             (new StringField('button_background_color_hover', 'buttonBackgroundColorHover'))->addFlags(new ApiAware()),
 
+            (new DateTimeField('countdown_target', 'countdownTarget'))->addFlags(new ApiAware()),
+            (new StringField('countdown_color', 'countdownColor'))->addFlags(new ApiAware()),
+            (new StringField('countdown_label_color', 'countdownLabelColor'))->addFlags(new ApiAware()),
+            (new StringField('countdown_font', 'countdownFont'))->addFlags(new ApiAware()),
+            (new StringField('button_border_radius', 'buttonBorderRadius'))->addFlags(new ApiAware()),
+
             (new TranslatedField('message'))->addFlags(new ApiAware()),
             (new TranslatedField('buttonText'))->addFlags(new ApiAware()),
             (new TranslatedField('buttonTitle'))->addFlags(new ApiAware()),
             (new TranslatedField('buttonUrl'))->addFlags(new ApiAware()),
+            (new TranslatedField('countdownExpiredText'))->addFlags(new ApiAware()),
 
             (new TranslationsAssociationField(InformationBarTranslationDefinition::class, 'act_information_bar_id'))->addFlags(new Required()),
         ]);

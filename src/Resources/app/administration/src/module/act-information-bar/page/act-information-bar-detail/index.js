@@ -17,7 +17,25 @@ Shopware.Component.register('act-information-bar-detail', {
             isLoading: false,
             isSaving: false,
             timezone: 'UTC',
+            isCreatingEvent: false,
+            // hasChanges() alone does not re-render the smart-bar button; this flag makes the edit reactive.
+            hasUnsavedChanges: false,
+            // Reported by the preview component, which owns the preview service call.
+            previewWarnings: {
+                messageEmpty: false,
+                message: { removedOnSave: [], invisibleRemoved: 0 },
+                expiredText: { removedOnSave: [], invisibleRemoved: 0 },
+            },
         };
+    },
+
+    watch: {
+        // The event copy opens on this same route with another id, which does not remount the page.
+        '$route.params.id'(id, oldId) {
+            if (id && id !== oldId) {
+                this.loadData();
+            }
+        },
     },
 
     computed: {
@@ -34,6 +52,46 @@ Shopware.Component.register('act-information-bar-detail', {
                 { id: 1, value: '_self', label: this.$tc('actInformationBar.detail.buttonTargetSelfOption') },
                 { id: 2, value: '_blank', label: this.$tc('actInformationBar.detail.buttonTargetBlankOption') },
             ];
+        },
+
+        countdownFontOptions() {
+            return [
+                { id: 1, value: 'theme', label: this.$tc('actInformationBar.detail.countdownFontThemeOption') },
+                { id: 2, value: 'montserrat', label: this.$tc('actInformationBar.detail.countdownFontMontserratOption') },
+            ];
+        },
+
+        // Texts of the live "removed on save" banners, one list per field.
+        messageWarningTexts() {
+            return this.warningTexts(this.previewWarnings.message);
+        },
+
+        expiredTextWarningTexts() {
+            return this.warningTexts(this.previewWarnings.expiredText);
+        },
+
+        countdownWarnings() {
+            if (!this.bar || !this.bar.countdownTarget) {
+                return [];
+            }
+
+            const warnings = [];
+            const target = new Date(this.bar.countdownTarget);
+
+            if (this.bar.startDate && target < new Date(this.bar.startDate)) {
+                warnings.push(this.$tc('actInformationBar.detail.countdownBeforeStartWarning'));
+            }
+
+            if (!this.bar.endDate) {
+                warnings.push(this.$tc('actInformationBar.detail.countdownNoEndDateWarning'));
+            }
+
+            // Based on the rendered preview: invisible characters or removed tags leave no line.
+            if (this.previewWarnings.messageEmpty) {
+                warnings.push(this.$tc('actInformationBar.detail.countdownNoMessageWarning'));
+            }
+
+            return warnings;
         },
 
         // Mirrors the list page's defaultsButtonTooltip pattern: the save action itself is
@@ -73,6 +131,8 @@ Shopware.Component.register('act-information-bar-detail', {
         },
 
         loadBar() {
+            this.hasUnsavedChanges = false;
+
             if (this.isCreateMode) {
                 return this.informationBarDefaultsService.getDefaults(null).then((defaults) => {
                     const bar = this.barRepository.create(Shopware.Context.api);
@@ -98,6 +158,85 @@ Shopware.Component.register('act-information-bar-detail', {
                 });
         },
 
+        warningTexts(warnings) {
+            const texts = warnings.removedOnSave.map((fragment) => {
+                // Classification only; the server filter decides what is removed.
+                if (fragment.startsWith('<!--')) {
+                    return this.$tc('actInformationBar.detail.warningCommentRemoved');
+                }
+
+                if (/^<\/(b|strong|i|em|u|s|mark)>$/i.test(fragment)) {
+                    return this.$t('actInformationBar.detail.warningUnmatchedCloser', { tag: fragment });
+                }
+
+                if (/^<\/?(b|strong|i|em|u|s|mark)[\s/]/i.test(fragment)) {
+                    return this.$t('actInformationBar.detail.warningTagAttributes', { tag: fragment });
+                }
+
+                return this.$t('actInformationBar.detail.warningTagRemoved', { tag: fragment });
+            });
+
+            if (warnings.invisibleRemoved > 0) {
+                texts.push(this.$tc('actInformationBar.detail.warningInvisibleRemoved', warnings.invisibleRemoved));
+            }
+
+            return texts;
+        },
+
+        onPreviewWarnings(warnings) {
+            this.previewWarnings = warnings;
+        },
+
+        eventCopyDisabledReason() {
+            if (!this.acl.can('act_information_bar.creator')) {
+                return this.$t('sw-privileges.tooltip.warning');
+            }
+
+            if (this.isCreateMode || !this.bar) {
+                return this.$tc('actInformationBar.detail.eventCopySaveFirst');
+            }
+
+            if (!this.bar.countdownTarget) {
+                return this.$tc('actInformationBar.detail.eventCopyNoTarget');
+            }
+
+            // clone() copies the stored state, so an unsaved target or edit would be lost.
+            if (this.hasUnsavedChanges || this.barRepository.hasChanges(this.bar)) {
+                return this.$tc('actInformationBar.detail.eventCopySaveFirst');
+            }
+
+            return null;
+        },
+
+        onCreateEventCopy() {
+            if (this.eventCopyDisabledReason()) {
+                return Promise.resolve();
+            }
+
+            this.isCreatingEvent = true;
+
+            // 6.7 signature: clone(id, behavior, context).
+            return this.barRepository.clone(this.bar.id, {
+                overwrites: {
+                    startDate: this.bar.countdownTarget,
+                    endDate: null,
+                    countdownTarget: null,
+                    name: `${this.bar.name} (Event)`,
+                },
+            }, Shopware.Context.api)
+                .then((clone) => this.$router.push({
+                    name: 'act.information.bar.detail',
+                    params: { id: clone.id },
+                    query: { eventCopy: '1' },
+                }))
+                .catch(() => {
+                    this.createNotificationError({ message: this.$tc('actInformationBar.detail.eventCopyError') });
+                })
+                .finally(() => {
+                    this.isCreatingEvent = false;
+                });
+        },
+
         onLanguageChanged() {
             this.loadData();
         },
@@ -106,6 +245,7 @@ Shopware.Component.register('act-information-bar-detail', {
         // into the nested entity (see plugin_dev_rules.md).
         onFieldInput(field, value) {
             this.bar[field] = value;
+            this.hasUnsavedChanges = true;
         },
 
         onSave() {
@@ -198,7 +338,7 @@ Shopware.Component.register('act-information-bar-detail', {
                 return;
             }
 
-            const dates = [this.bar.startDate, this.bar.endDate]
+            const dates = [this.bar.startDate, this.bar.endDate, this.bar.countdownTarget]
                 .filter((value) => !!value)
                 .map((value) => new Date(value));
 

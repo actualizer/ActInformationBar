@@ -4,6 +4,7 @@ namespace Act\InformationBar\Content\InformationBar\Aggregate\InformationBarTran
 
 use Act\InformationBar\Content\InformationBar\InformationBarDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityTranslationDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\AllowHtml;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
@@ -38,10 +39,11 @@ class InformationBarTranslationDefinition extends EntityTranslationDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-            (new LongTextField('message', 'message'))->addFlags(new ApiAware()),
+            (new LongTextField('message', 'message'))->addFlags(new ApiAware(), new AllowHtml(false)),
             (new StringField('button_text', 'buttonText'))->addFlags(new ApiAware()),
             (new StringField('button_title', 'buttonTitle'))->addFlags(new ApiAware()),
             (new StringField('button_url', 'buttonUrl'))->addFlags(new ApiAware()),
+            (new StringField('countdown_expired_text', 'countdownExpiredText'))->addFlags(new ApiAware(), new AllowHtml(false)),
         ]);
     }
 }

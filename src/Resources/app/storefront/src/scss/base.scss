@@ -82,9 +82,115 @@ $act-information-bar-fade-duration: 500ms !default;
     background-color: var(--act-bar-btn-bg, #{$act-information-bar-button-background-color});
     transition: all 0.3s ease;
 
+    // Only set when the merchant chose a radius, so theme button styles stay intact.
+    &.has-custom-radius {
+        border-radius: var(--act-bar-btn-radius);
+    }
+
     &:hover {
         color: var(--act-bar-btn-text-hover, #{$act-information-bar-button-text-color-hover});
         border-color: var(--act-bar-btn-border-hover, #{$act-information-bar-button-border-color-hover});
         background-color: var(--act-bar-btn-bg-hover, #{$act-information-bar-button-background-color-hover});
     }
+}
+
+// Countdown block
+$act-information-bar-countdown-num-size: 1.75em !default;
+$act-information-bar-countdown-label-size: #{'max(12px, .8em)'} !default;
+$act-information-bar-countdown-label-line-height: 1.2 !default;
+$act-information-bar-countdown-colon-size: 1.6em !default;
+$act-information-bar-countdown-label-opacity: .75 !default;
+
+// Cells and the expired text share one grid cell, so the block keeps the
+// height of the cells and nothing jumps when it switches to the expired text.
+.act-info-countdown {
+    display: grid;
+    justify-items: center;
+    align-items: center;
+    max-width: 100%;
+    // Height of a running block (number + label), so the expired state is just as tall.
+    min-height: calc(#{$act-information-bar-countdown-num-size} + #{$act-information-bar-countdown-label-size} * #{$act-information-bar-countdown-label-line-height});
+
+    &--montserrat {
+        font-family: 'ActInformationBarMontserrat', var(--bs-body-font-family), sans-serif;
+    }
+
+    &[hidden],
+    [hidden] {
+        display: none !important;
+    }
+}
+
+.act-info-countdown-cells,
+.act-info-countdown-expired {
+    grid-row: 1;
+    grid-column: 1;
+}
+
+.act-info-countdown-cells {
+    display: inline-flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: .35em;
+}
+
+.act-info-countdown.is-expired .act-info-countdown-cells {
+    visibility: hidden;
+}
+
+.act-info-countdown-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.act-info-countdown-num {
+    font-size: $act-information-bar-countdown-num-size;
+    font-weight: 800;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    min-width: 2ch;
+    text-align: center;
+    color: var(--act-bar-countdown-color, inherit);
+}
+
+.act-info-countdown-label {
+    font-size: $act-information-bar-countdown-label-size;
+    line-height: $act-information-bar-countdown-label-line-height;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    color: var(--act-bar-countdown-label-color, currentColor);
+    opacity: var(--act-bar-countdown-label-opacity, #{$act-information-bar-countdown-label-opacity});
+}
+
+.act-info-countdown-colon {
+    font-size: $act-information-bar-countdown-colon-size;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--act-bar-countdown-label-color, currentColor);
+    opacity: var(--act-bar-countdown-label-opacity, #{$act-information-bar-countdown-label-opacity});
+}
+
+.act-info-countdown-expired {
+    font-size: $act-information-bar-countdown-num-size;
+    font-weight: 800;
+    color: var(--act-bar-countdown-color, inherit);
+}
+
+.act-info-message mark,
+.act-info-countdown-expired mark {
+    background: none;
+    padding: 0;
+}
+
+.act-info-message mark {
+    color: var(--act-bar-countdown-color, inherit);
+    font-weight: 700;
+}
+
+// The expired text already uses the countdown colour, so the highlight
+// falls back to the bar text colour to stay distinguishable.
+.act-info-countdown-expired mark {
+    color: var(--act-bar-text, #{$act-information-bar-text-color});
+    font-weight: inherit;
 }

@@ -7,11 +7,25 @@
         <service id="Act\InformationBar\Subscriber\InformationBarSubscriber">
             <argument type="service" id="Act\InformationBar\Service\InformationBarTextLoader"/>
             <argument type="service" id="event_dispatcher"/>
+            <argument type="service" id="Act\InformationBar\Service\Text\BarTextFilter"/>
+            <argument type="service" id="Act\InformationBar\Service\Countdown\CountdownViewFactory"/>
+            <argument type="service" id="clock"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
         <service id="Act\InformationBar\Subscriber\CacheInvalidationSubscriber">
             <argument type="service" id="Shopware\Core\Framework\Adapter\Cache\CacheInvalidator"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Act\InformationBar\Service\Text\BarTextFilter"/>
+
+        <service id="Act\InformationBar\Service\Countdown\CountdownViewFactory">
+            <argument type="service" id="Act\InformationBar\Service\Text\BarTextFilter"/>
+        </service>
+
+        <service id="Act\InformationBar\Subscriber\BarTextWriteSubscriber">
+            <argument type="service" id="Act\InformationBar\Service\Text\BarTextFilter"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 
@@ -36,6 +50,13 @@
 
         <service id="Act\InformationBar\Controller\InformationBarDefaultsController" public="true">
             <argument type="service" id="Act\InformationBar\Service\BarDefaultsProvider"/>
+            <call method="setContainer">
+                <argument type="service" id="service_container"/>
+            </call>
+        </service>
+
+        <service id="Act\InformationBar\Controller\InformationBarPreviewController" public="true">
+            <argument type="service" id="Act\InformationBar\Service\Text\BarTextFilter"/>
             <call method="setContainer">
                 <argument type="service" id="service_container"/>
             </call>

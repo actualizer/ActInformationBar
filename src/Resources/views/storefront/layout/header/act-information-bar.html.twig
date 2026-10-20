@@ -7,13 +7,21 @@
 	<div class="{{ barClass }}" data-act-information-bar="true" data-timestamp="{{ 'now'|date('U') }}" style="{{ actInformationBar.style }}">
 		<div class="{{ containerClass }}">
 			<div class="act-info-bar-inner">
-				<div class="act-info-message-container" data-message="{{ actInformationBar.message|escape }}" data-duration="{{ actInformationBar.displayDuration }}"></div>
+				<div class="act-info-message-container" data-duration="{{ actInformationBar.displayDuration }}">
+					{% for line in actInformationBar.lines %}
+						{# lines are pre-filtered by BarTextFilter #}
+						<div class="act-info-message{% if loop.first %} is-active{% endif %}"{% if not loop.first %} aria-hidden="true"{% endif %}>{{ line|raw }}</div>
+					{% endfor %}
+				</div>
+				{% if actInformationBar.countdown %}
+					{% sw_include '@ActInformationBar/storefront/layout/header/act-information-bar-countdown.html.twig' %}
+				{% endif %}
 				{% if actInformationBar.showButton and actInformationBar.buttonText is not empty and actInformationBar.buttonUrl is not empty %}
 					<a href="{{ actInformationBar.buttonUrl }}"
 					   target="{{ actInformationBar.buttonTarget }}"
 					   {% if actInformationBar.buttonTarget == '_blank' %}rel="noopener noreferrer"{% endif %}
 					   {% if actInformationBar.buttonTitle is not empty %}title="{{ actInformationBar.buttonTitle }}"{% endif %}
-					   class="btn act-information-bar-button">
+					   class="btn act-information-bar-button{% if '--act-bar-btn-radius:' in actInformationBar.style %} has-custom-radius{% endif %}">
 						{{ actInformationBar.buttonText }}
 						{% if actInformationBar.buttonTarget == '_blank' %}
 							<span class="visually-hidden">{{ 'actInformationBar.buttonOpensInNewWindow'|trans }}</span>

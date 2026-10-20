@@ -8,6 +8,7 @@
         <mt-button
             v-tooltip="defaultsButtonTooltip"
             variant="secondary"
+            size="default"
             :disabled="!acl.can('act_information_bar.editor') || undefined"
             @click="$router.push({ name: 'act.information.bar.defaults' })"
         >
@@ -15,6 +16,7 @@
         </mt-button>
         <mt-button
             variant="primary"
+            size="default"
             :disabled="!acl.can('act_information_bar.creator') || undefined"
             @click="$router.push({ name: 'act.information.bar.create' })"
         >

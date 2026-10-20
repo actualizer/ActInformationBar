@@ -243,9 +243,10 @@ Shopware.Component.register('act-information-bar-list', {
         // Clears the schedule so the clone does not immediately compete with its
         // template for the same window (see BarScheduleResolver's overlap warning).
         onDuplicate(id) {
-            return this.barRepository.clone(id, Shopware.Context.api, {
+            // 6.7 signature: clone(id, behavior, context).
+            return this.barRepository.clone(id, {
                 overwrites: { startDate: null, endDate: null },
-            })
+            }, Shopware.Context.api)
                 .then((clone) => this.$router.push({ name: 'act.information.bar.detail', params: { id: clone.id } }))
                 .catch(() => {
                     this.createNotificationError({ message: this.$tc('actInformationBar.list.duplicateError') });

@@ -2,6 +2,11 @@
 
 namespace Act\InformationBar;
 
+use Act\InformationBar\Service\InformationBarCacheTag;
+use Act\InformationBar\Service\Text\BarTextFilter;
+use Act\InformationBar\Service\Text\BarTextStorageCleanup;
+use Doctrine\DBAL\Connection;
+use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Plugin\Context\InstallContext;
 use Shopware\Core\Framework\Plugin\Context\UpdateContext;
@@ -26,6 +31,43 @@ class ActInformationBar extends Plugin
     {
         parent::update($updateContext);
         $this->compileTheme();
+    }
+
+    public function postInstall(InstallContext $installContext): void
+    {
+        parent::postInstall($installContext);
+        $this->cleanStoredTexts();
+    }
+
+    public function postUpdate(UpdateContext $updateContext): void
+    {
+        parent::postUpdate($updateContext);
+        $this->cleanStoredTexts();
+    }
+
+    /**
+     * Texts written by migrations bypass the write subscriber, so they are cleaned after both lifecycle steps.
+     */
+    private function cleanStoredTexts(): void
+    {
+        if ($this->container === null) {
+            return;
+        }
+
+        // Built by hand: the service does not exist in the container that was compiled before this update.
+        $connection = $this->container->get(Connection::class);
+        if (!$connection instanceof Connection) {
+            return;
+        }
+
+        $cleanup = new BarTextStorageCleanup($connection, new BarTextFilter());
+
+        if ($cleanup->cleanAll() > 0) {
+            $invalidator = $this->container->get(CacheInvalidator::class);
+            if ($invalidator instanceof CacheInvalidator) {
+                $invalidator->invalidate([InformationBarCacheTag::TAG]);
+            }
+        }
     }
 
     public function activate(ActivateContext $activateContext): void

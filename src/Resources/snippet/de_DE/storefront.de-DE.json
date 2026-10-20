@@ -1,5 +1,27 @@
 {
   "actInformationBar": {
-    "buttonOpensInNewWindow": "(öffnet in einem neuen Fenster)"
+    "buttonOpensInNewWindow": "(öffnet in einem neuen Fenster)",
+    "countdown": {
+      "days": "Tage",
+      "hours": "Std",
+      "minutes": "Min",
+      "seconds": "Sek",
+      "remaining": "Noch {time}",
+      "sr": {
+        "and": " und ",
+        "day": {
+          "one": "{count} Tag",
+          "other": "{count} Tage"
+        },
+        "hour": {
+          "one": "{count} Stunde",
+          "other": "{count} Stunden"
+        },
+        "minute": {
+          "one": "{count} Minute",
+          "other": "{count} Minuten"
+        }
+      }
+    }
   }
 }

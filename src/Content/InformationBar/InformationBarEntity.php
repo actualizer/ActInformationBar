@@ -57,6 +57,16 @@ class InformationBarEntity extends Entity
 
     protected ?string $buttonBackgroundColorHover = null;
 
+    protected ?\DateTimeInterface $countdownTarget = null;
+
+    protected ?string $countdownColor = null;
+
+    protected ?string $countdownLabelColor = null;
+
+    protected ?string $countdownFont = null;
+
+    protected ?string $buttonBorderRadius = null;
+
     protected ?string $message = null;
 
     protected ?string $buttonText = null;
@@ -64,6 +74,8 @@ class InformationBarEntity extends Entity
     protected ?string $buttonTitle = null;
 
     protected ?string $buttonUrl = null;
+
+    protected ?string $countdownExpiredText = null;
 
     protected ?InformationBarTranslationCollection $translations = null;
 
@@ -267,6 +279,56 @@ class InformationBarEntity extends Entity
         $this->buttonBorderWidth = $buttonBorderWidth;
     }
 
+    public function getCountdownTarget(): ?\DateTimeInterface
+    {
+        return $this->countdownTarget;
+    }
+
+    public function setCountdownTarget(?\DateTimeInterface $countdownTarget): void
+    {
+        $this->countdownTarget = $countdownTarget;
+    }
+
+    public function getCountdownColor(): ?string
+    {
+        return $this->countdownColor;
+    }
+
+    public function setCountdownColor(?string $countdownColor): void
+    {
+        $this->countdownColor = $countdownColor;
+    }
+
+    public function getCountdownLabelColor(): ?string
+    {
+        return $this->countdownLabelColor;
+    }
+
+    public function setCountdownLabelColor(?string $countdownLabelColor): void
+    {
+        $this->countdownLabelColor = $countdownLabelColor;
+    }
+
+    public function getCountdownFont(): ?string
+    {
+        return $this->countdownFont;
+    }
+
+    public function setCountdownFont(?string $countdownFont): void
+    {
+        $this->countdownFont = $countdownFont;
+    }
+
+    public function getButtonBorderRadius(): ?string
+    {
+        return $this->buttonBorderRadius;
+    }
+
+    public function setButtonBorderRadius(?string $buttonBorderRadius): void
+    {
+        $this->buttonBorderRadius = $buttonBorderRadius;
+    }
+
     public function getButtonBackgroundColor(): ?string
     {
         return $this->buttonBackgroundColor;
@@ -325,6 +387,16 @@ class InformationBarEntity extends Entity
     public function setButtonUrl(?string $buttonUrl): void
     {
         $this->buttonUrl = $buttonUrl;
+    }
+
+    public function getCountdownExpiredText(): ?string
+    {
+        return $this->countdownExpiredText;
+    }
+
+    public function setCountdownExpiredText(?string $countdownExpiredText): void
+    {
+        $this->countdownExpiredText = $countdownExpiredText;
     }
 
     public function getTranslations(): ?InformationBarTranslationCollection

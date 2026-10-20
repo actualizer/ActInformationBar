@@ -12,6 +12,7 @@ final readonly class InformationBarText
         public ?string $buttonText = null,
         public ?string $buttonTitle = null,
         public ?string $buttonUrl = null,
+        public ?string $countdownExpiredText = null,
     ) {
     }
 }

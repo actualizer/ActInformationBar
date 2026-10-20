@@ -1,0 +1,73 @@
+{% block act_information_bar_preview %}
+<section
+    class="act-information-bar-preview"
+    :aria-label="$tc('actInformationBar.preview.title')"
+    :tabindex="isScrollable ? 0 : undefined"
+>
+    {% block act_information_bar_preview_bar %}
+    <!-- Decorative for assistive tech: the rotating and ticking content would only chatter. -->
+    <div
+        class="act-info-bar"
+        :class="{ 'act-info-bar-full-width': bar?.fullWidth }"
+        :style="styleVars"
+        aria-hidden="true"
+    >
+        <div class="container" :class="{ 'act-info-bar-content': !bar?.fullWidth }">
+            <div class="act-info-bar-inner">
+                <div class="act-info-message-container">
+                    <!-- lines are filtered server-side by BarTextFilter -->
+                    <div
+                        v-for="(line, index) in lines"
+                        :key="index"
+                        class="act-info-message"
+                        :class="{ 'is-active': index === activeIndex }"
+                        v-html="line"
+                    ></div>
+                </div>
+
+                <div
+                    v-if="showCountdown"
+                    class="act-info-countdown"
+                    :class="{ 'act-info-countdown--montserrat': useMontserrat, 'is-expired': isExpired }"
+                >
+                    <span class="act-info-countdown-cells">
+                        <span class="act-info-countdown-cell" data-unit="d" :hidden="cells.daysHidden">
+                            <span class="act-info-countdown-num">{{ cells.d }}</span>
+                            <span class="act-info-countdown-label">{{ $tc('actInformationBar.preview.days') }}</span>
+                        </span>
+                        <span class="act-info-countdown-colon" data-colon="d" :hidden="cells.daysHidden">:</span>
+                        <span class="act-info-countdown-cell" data-unit="h">
+                            <span class="act-info-countdown-num">{{ cells.h }}</span>
+                            <span class="act-info-countdown-label">{{ $tc('actInformationBar.preview.hours') }}</span>
+                        </span>
+                        <span class="act-info-countdown-colon">:</span>
+                        <span class="act-info-countdown-cell" data-unit="m">
+                            <span class="act-info-countdown-num">{{ cells.m }}</span>
+                            <span class="act-info-countdown-label">{{ $tc('actInformationBar.preview.minutes') }}</span>
+                        </span>
+                        <span class="act-info-countdown-colon">:</span>
+                        <span class="act-info-countdown-cell" data-unit="s">
+                            <span class="act-info-countdown-num">{{ cells.s }}</span>
+                            <span class="act-info-countdown-label">{{ $tc('actInformationBar.preview.seconds') }}</span>
+                        </span>
+                    </span>
+                    <!-- filtered server-side by BarTextFilter -->
+                    <div
+                        v-if="isExpired && expiredHtml !== null"
+                        class="act-info-countdown-expired"
+                        v-html="expiredHtml"
+                    ></div>
+                </div>
+
+                <span v-if="showButton" class="btn act-information-bar-button"
+                    :class="{ 'has-custom-radius': '--act-bar-btn-radius' in styleVars }">{{ bar.buttonText }}</span>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block act_information_bar_preview_hint %}
+    <p class="act-information-bar-preview__hint">{{ $tc('actInformationBar.preview.hint') }}</p>
+    {% endblock %}
+</section>
+{% endblock %}

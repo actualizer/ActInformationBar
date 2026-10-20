@@ -115,6 +115,7 @@ class InformationBarTextLoader
                         $translation->getButtonText(),
                         $translation->getButtonTitle(),
                         $translation->getButtonUrl(),
+                        $translation->getCountdownExpiredText(),
                     ));
                 }
             }

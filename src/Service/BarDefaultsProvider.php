@@ -28,6 +28,7 @@ class BarDefaultsProvider
         'buttonTextColor', 'buttonTextColorHover',
         'buttonBorderColor', 'buttonBorderColorHover', 'buttonBorderWidth',
         'buttonBackgroundColor', 'buttonBackgroundColorHover',
+        'countdownColor', 'countdownLabelColor', 'countdownFont', 'buttonBorderRadius',
     ];
 
     public function __construct(private readonly SystemConfigService $systemConfigService)

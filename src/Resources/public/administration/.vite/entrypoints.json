@@ -3,11 +3,11 @@
   "entryPoints": {
     "act-information-bar": {
       "css": [
-        "/bundles/actinformationbar/administration/assets/act-information-bar-D9v57nfQ.css"
+        "/bundles/actinformationbar/administration/assets/act-information-bar-CXyKZkmu.css"
       ],
       "dynamic": [],
       "js": [
-        "/bundles/actinformationbar/administration/assets/act-information-bar-B2utvI8r.js"
+        "/bundles/actinformationbar/administration/assets/act-information-bar-BZnPxsp8.js"
       ],
       "legacy": false,
       "preload": []

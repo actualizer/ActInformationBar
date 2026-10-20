@@ -1,0 +1,76 @@
+{% set countdown = actInformationBar.countdown %}
+{% set fontPath = 'bundles/actinformationbar/fonts/' %}
+{% set unicodeLatin = 'U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD' %}
+{% set unicodeLatinExt = 'U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF' %}
+
+{# Plural choice: count == 1 -> one, else other. Keep in sync with the JS plugin. #}
+{% set srStrings = {
+	remaining: 'actInformationBar.countdown.remaining'|trans,
+	and: 'actInformationBar.countdown.sr.and'|trans,
+	day: { one: 'actInformationBar.countdown.sr.day.one'|trans, other: 'actInformationBar.countdown.sr.day.other'|trans },
+	hour: { one: 'actInformationBar.countdown.sr.hour.one'|trans, other: 'actInformationBar.countdown.sr.hour.other'|trans },
+	minute: { one: 'actInformationBar.countdown.sr.minute.one'|trans, other: 'actInformationBar.countdown.sr.minute.other'|trans }
+} %}
+
+{% if not countdown.expired or countdown.expiredHtml is not null %}
+	{% if actInformationBar.countdownFont == 'montserrat' %}
+		<style>
+			{% for weight in [600, 800] %}
+				{% for subset, range in {'latin-ext': unicodeLatinExt, 'latin': unicodeLatin} %}
+					@font-face { font-family: 'ActInformationBarMontserrat'; font-style: normal; font-display: swap; font-weight: {{ weight }}; src: url('{{ asset(fontPath ~ 'montserrat-' ~ subset ~ '-' ~ weight ~ '-normal.woff2', 'asset') }}') format('woff2'); unicode-range: {{ range }}; }
+				{% endfor %}
+			{% endfor %}
+		</style>
+	{% endif %}
+
+	<div class="act-info-countdown{% if actInformationBar.countdownFont == 'montserrat' %} act-info-countdown--montserrat{% endif %}"
+		 data-act-information-bar-countdown="true"
+		 data-target="{{ countdown.target }}"
+		 data-sr-strings="{{ srStrings|json_encode|e('html_attr') }}">
+		{% if countdown.expired %}
+			<div class="act-info-countdown-expired">{# pre-filtered by BarTextFilter #}{{ countdown.expiredHtml|raw }}</div>
+		{% else %}
+			{# Prefill with the values at render time; the JS overwrites them right away. #}
+			{% set remaining = max(0, countdown.target|date('U') - 'now'|date('U')) %}
+			{% set d = (remaining / 86400)|round(0, 'floor') %}
+			{% set h = ((remaining - d * 86400) / 3600)|round(0, 'floor') %}
+			{% set m = ((remaining - d * 86400 - h * 3600) / 60)|round(0, 'floor') %}
+			{% set s = remaining - d * 86400 - h * 3600 - m * 60 %}
+			{% set totalMinutes = (remaining / 60)|round(0, 'ceil') %}
+			{% set srDays = (totalMinutes / 1440)|round(0, 'floor') %}
+			{% set srHours = ((totalMinutes - srDays * 1440) / 60)|round(0, 'floor') %}
+			{% set srMinutes = totalMinutes - srDays * 1440 - srHours * 60 %}
+			{% set srParts = [] %}
+			{% if srDays > 0 %}{% set srParts = srParts|merge([(srDays == 1 ? srStrings.day.one : srStrings.day.other)|replace({'{count}': srDays})]) %}{% endif %}
+			{% if srHours > 0 %}{% set srParts = srParts|merge([(srHours == 1 ? srStrings.hour.one : srStrings.hour.other)|replace({'{count}': srHours})]) %}{% endif %}
+			{% if srMinutes > 0 %}{% set srParts = srParts|merge([(srMinutes == 1 ? srStrings.minute.one : srStrings.minute.other)|replace({'{count}': srMinutes})]) %}{% endif %}
+			{% set srTime = srParts|length > 1 ? srParts|slice(0, srParts|length - 1)|join(', ') ~ srStrings.and ~ srParts|last : srParts|first %}
+			{# Sub-second race: remaining is 0 but the target is not yet expired, so there is nothing to announce. #}
+			<span class="visually-hidden act-info-countdown-sr">{% if srParts|length > 0 %}{{ srStrings.remaining|replace({'{time}': srTime}) }}{% endif %}</span>
+			<span class="act-info-countdown-cells" aria-hidden="true">
+				<span class="act-info-countdown-cell" data-unit="d"{% if d == 0 %} hidden{% endif %}>
+					<span class="act-info-countdown-num">{{ '%02d'|format(d) }}</span>
+					<span class="act-info-countdown-label">{{ 'actInformationBar.countdown.days'|trans }}</span>
+				</span>
+				<span class="act-info-countdown-colon" data-colon="d"{% if d == 0 %} hidden{% endif %}>:</span>
+				<span class="act-info-countdown-cell" data-unit="h">
+					<span class="act-info-countdown-num">{{ '%02d'|format(h) }}</span>
+					<span class="act-info-countdown-label">{{ 'actInformationBar.countdown.hours'|trans }}</span>
+				</span>
+				<span class="act-info-countdown-colon">:</span>
+				<span class="act-info-countdown-cell" data-unit="m">
+					<span class="act-info-countdown-num">{{ '%02d'|format(m) }}</span>
+					<span class="act-info-countdown-label">{{ 'actInformationBar.countdown.minutes'|trans }}</span>
+				</span>
+				<span class="act-info-countdown-colon">:</span>
+				<span class="act-info-countdown-cell" data-unit="s">
+					<span class="act-info-countdown-num">{{ '%02d'|format(s) }}</span>
+					<span class="act-info-countdown-label">{{ 'actInformationBar.countdown.seconds'|trans }}</span>
+				</span>
+			</span>
+			{% if countdown.expiredHtml is not null %}
+				<div class="act-info-countdown-expired" hidden>{# pre-filtered by BarTextFilter #}{{ countdown.expiredHtml|raw }}</div>
+			{% endif %}
+		{% endif %}
+	</div>
+{% endif %}

@@ -9,3 +9,10 @@ parameters:
         - src/
     excludePaths:
         - src/Migration/*
+    # The DAL offers no public API to rewrite a payload before it is written
+    # (BarTextWriteSubscriber). Unmatched locally: the Shopware rule is only in shopware-cli.
+    reportUnmatchedIgnoredErrors: false
+    ignoreErrors:
+        -
+            identifier: shopware.internalMethodCall
+            path: src/Subscriber/BarTextWriteSubscriber.php

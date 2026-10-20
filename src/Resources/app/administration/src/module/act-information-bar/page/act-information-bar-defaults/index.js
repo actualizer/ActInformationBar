@@ -33,6 +33,13 @@ Shopware.Component.register('act-information-bar-defaults', {
     },
 
     computed: {
+        countdownFontOptions() {
+            return [
+                { id: 1, value: 'theme', label: this.$tc('actInformationBar.detail.countdownFontThemeOption') },
+                { id: 2, value: 'montserrat', label: this.$tc('actInformationBar.detail.countdownFontMontserratOption') },
+            ];
+        },
+
         buttonTargetOptions() {
             return [
                 { id: 1, value: '_self', label: this.$tc('actInformationBar.detail.buttonTargetSelfOption') },

@@ -247,6 +247,30 @@ class InformationBarTextLoaderTest extends TestCase
         self::assertSame('Asia/Tokyo', $spyResolver->capturedNow->getTimezone()->getName());
     }
 
+    public function testExpiredTextComesFromTheWinningTranslation(): void
+    {
+        $bar = $this->bar(self::SALES_CHANNEL_ID, [self::CURRENT_LANGUAGE_ID => 'English']);
+        foreach ($bar->getTranslations() ?? [] as $translation) {
+            $translation->setCountdownExpiredText('Jetzt live');
+        }
+
+        $result = $this->loader()->resolveWinner([$bar], $this->languageCandidates());
+
+        self::assertNotNull($result);
+        self::assertSame('Jetzt live', $result->text->countdownExpiredText);
+    }
+
+    public function testBarWithCountdownTargetButNoMessageIsStillSkipped(): void
+    {
+        $bar = $this->bar(self::SALES_CHANNEL_ID, [self::CURRENT_LANGUAGE_ID => '']);
+        $bar->setCountdownTarget(new \DateTimeImmutable('2026-11-26 23:00:00'));
+        foreach ($bar->getTranslations() ?? [] as $translation) {
+            $translation->setCountdownExpiredText('Jetzt live');
+        }
+
+        self::assertNull($this->loader()->resolveWinner([$bar], $this->languageCandidates()));
+    }
+
     /**
      * @return list<string>
      */

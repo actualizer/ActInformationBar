@@ -10,6 +10,7 @@
     <template #smart-bar-actions>
         <mt-button
             variant="primary"
+            size="default"
             :is-loading="isSaving"
             :disabled="!acl.can('act_information_bar.editor') || undefined"
             @click="onSave"
@@ -214,6 +215,16 @@
                     />
                     {% endblock %}
 
+                    {% block act_information_bar_defaults_field_button_border_radius %}
+                    <mt-text-field
+                        name="sw-field--act-information-bar-default-button-border-radius"
+                        :label="$tc('actInformationBar.detail.buttonBorderRadiusLabel')"
+                        :help-text="$tc('actInformationBar.detail.buttonBorderRadiusHelp')"
+                        :model-value="defaults.buttonBorderRadius"
+                        @update:model-value="onFieldInput('buttonBorderRadius', $event)"
+                    />
+                    {% endblock %}
+
                     {% block act_information_bar_defaults_field_group_button_background_color %}
                     <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0px 30px">
                         {% block act_information_bar_defaults_field_button_background_color %}
@@ -234,6 +245,41 @@
                         />
                         {% endblock %}
                     </sw-container>
+                    {% endblock %}
+                    {% endblock %}
+                    {% block act_information_bar_defaults_group_countdown %}
+                    <h3 class="act-information-bar-defaults__group-title">{{ $tc('actInformationBar.detail.countdownCardTitle') }}</h3>
+
+                    {% block act_information_bar_defaults_field_group_countdown_colors %}
+                    <sw-container columns="repeat(auto-fit, minmax(250px, 1fr))" gap="0px 30px">
+                        {% block act_information_bar_defaults_field_countdown_color %}
+                        <mt-colorpicker
+                            name="sw-field--act-information-bar-default-countdown-color"
+                            :label="$tc('actInformationBar.detail.countdownColorLabel')"
+                            :model-value="defaults.countdownColor"
+                            @update:model-value="onFieldInput('countdownColor', $event)"
+                        />
+                        {% endblock %}
+
+                        {% block act_information_bar_defaults_field_countdown_label_color %}
+                        <mt-colorpicker
+                            name="sw-field--act-information-bar-default-countdown-label-color"
+                            :label="$tc('actInformationBar.detail.countdownLabelColorLabel')"
+                            :model-value="defaults.countdownLabelColor"
+                            @update:model-value="onFieldInput('countdownLabelColor', $event)"
+                        />
+                        {% endblock %}
+                    </sw-container>
+                    {% endblock %}
+
+                    {% block act_information_bar_defaults_field_countdown_font %}
+                    <mt-select
+                        name="sw-field--act-information-bar-default-countdown-font"
+                        :label="$tc('actInformationBar.detail.countdownFontLabel')"
+                        :options="countdownFontOptions"
+                        :model-value="defaults.countdownFont ?? 'theme'"
+                        @update:model-value="onFieldInput('countdownFont', $event)"
+                    />
                     {% endblock %}
                     {% endblock %}
                 </template>
