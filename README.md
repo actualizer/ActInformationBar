@@ -2,6 +2,11 @@
 
 A Shopware 6 plugin that displays a customizable, time-controlled information bar at the top of your storefront with dynamic messaging capabilities.
 
+## Requirements
+
+- Shopware `>=6.7 <6.8`, tested with 6.7.16.0
+- PHP 8.4 or higher
+
 ## Features
 
 - Multiple information bars per sales channel, each with its own schedule
@@ -30,11 +35,6 @@ A Shopware 6 plugin that displays a customizable, time-controlled information ba
 - Live preview of the bar on the detail page
 - ACL privileges (`act_information_bar` with viewer/editor/creator/deleter roles)
 - Multi-language admin interface (German & English)
-
-## Requirements
-
-- Shopware `>=6.7 <6.8`, tested with 6.7.16.0
-- PHP 8.4 or higher
 
 ## Installation
 
