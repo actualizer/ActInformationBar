@@ -34,7 +34,7 @@ A Shopware 6 plugin that displays a customizable, time-controlled information ba
 
 ## Requirements
 
-- Shopware 6.7 or higher
+- Shopware `>=6.7 <6.8`, tested with 6.7.16.0
 - PHP 8.4 or higher
 
 ## Installation
