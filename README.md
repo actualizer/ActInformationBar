@@ -30,7 +30,6 @@ A Shopware 6 plugin that displays a customizable, time-controlled information ba
 - Live preview of the bar on the detail page
 - ACL privileges (`act_information_bar` with viewer/editor/creator/deleter roles)
 - Multi-language admin interface (German & English)
-- Compatible with Shopware 6.7
 
 ## Requirements
 
@@ -327,8 +326,6 @@ button keeps its position while the lines rotate.
 
 ## Compatibility
 
-- **Shopware Version**: 6.7
-- **PHP Version**: 8.4+
 - **Browser Support**: All modern browsers (Chrome, Firefox, Safari, Edge)
 - **Mobile**: Fully responsive and touch-friendly
 - **Theme Compatibility**: Works with all Shopware themes
